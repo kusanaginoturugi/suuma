@@ -1,0 +1,114 @@
+<% content_for :title, "振替伝票入力 | Summa" %>
+
+<div class="page-shell">
+  <div class="hero">
+    <p class="eyebrow">DOUBLE-ENTRY</p>
+    <h1>振替伝票入力</h1>
+    <p class="sub">複式簿記の仕訳をまとめて入力し、その場で借方・貸方のバランスを確認できます。</p>
+    <div class="pill-row">
+      <span class="pill">ドラフト</span>
+      <span class="pill pill--accent">バランスチェック付き</span>
+      <button type="button" class="pill pill--ghost" data-action="click->theme-toggle#toggle" data-theme-toggle-target="button">
+        ライトモードに切替
+      </button>
+    </div>
+  </div>
+
+  <% if flash[:notice] %>
+    <div class="flash flash--notice"><%= flash[:notice] %></div>
+  <% end %>
+  <% if flash[:alert] %>
+    <div class="flash flash--alert"><%= flash[:alert] %></div>
+  <% end %>
+
+  <%= form_with url: vouchers_path, scope: :voucher, class: "voucher-form", data: { controller: "voucher-form" } do |f| %>
+    <section class="card card--stacked">
+      <div class="card__header">
+        <div>
+          <p class="eyebrow">HEADER</p>
+          <h2>起票情報</h2>
+        </div>
+      </div>
+      <div class="field-grid">
+        <div class="field">
+          <%= f.label :recorded_on, "起票日" %>
+          <%= f.date_field :recorded_on, value: @voucher[:recorded_on], required: true %>
+        </div>
+        <div class="field">
+          <%= f.label :voucher_number, "伝票番号" %>
+          <%= f.text_field :voucher_number, value: @voucher[:voucher_number], required: true, placeholder: "20251208-001" %>
+        </div>
+        <div class="field field--full">
+          <%= f.label :description, "摘要 / メモ" %>
+          <%= f.text_field :description, value: @voucher[:description], placeholder: "例）オフィス家賃振替" %>
+        </div>
+      </div>
+    </section>
+
+    <section class="card card--stacked">
+      <div class="card__header">
+        <div>
+          <p class="eyebrow">DETAIL</p>
+          <h2>仕訳明細</h2>
+          <p class="sub">借方・貸方の行を自由に追加してください。空行は自動で無視されます。</p>
+        </div>
+        <div class="card__actions">
+          <button type="button" class="btn btn--ghost" data-action="click->voucher-form#addRow">+ 行を追加</button>
+        </div>
+      </div>
+
+      <div class="entry-head">
+        <span>勘定科目</span>
+        <span>借方金額</span>
+        <span>貸方金額</span>
+        <span>摘要</span>
+        <span></span>
+      </div>
+
+      <div class="entry-list" data-voucher-form-target="rows">
+        <% @voucher[:lines].each do |line| %>
+          <div class="entry-row" data-voucher-form-target="row">
+            <input type="text" name="voucher[lines][][account]" value="<%= h(line[:account]) %>" placeholder="現金 / 売上 / 旅費交通費など">
+            <input type="number" step="0.01" min="0" name="voucher[lines][][debit_amount]" value="<%= h(line[:debit_amount]) %>" data-action="input->voucher-form#recalculate" inputmode="decimal">
+            <input type="number" step="0.01" min="0" name="voucher[lines][][credit_amount]" value="<%= h(line[:credit_amount]) %>" data-action="input->voucher-form#recalculate" inputmode="decimal">
+            <input type="text" name="voucher[lines][][note]" value="<%= h(line[:note]) %>" placeholder="補足メモ">
+            <button type="button" class="icon-button" aria-label="行を削除" data-action="click->voucher-form#removeRow">✕</button>
+          </div>
+        <% end %>
+      </div>
+
+      <template data-voucher-form-target="rowTemplate">
+        <div class="entry-row" data-voucher-form-target="row">
+          <input type="text" name="voucher[lines][][account]" placeholder="勘定科目">
+          <input type="number" step="0.01" min="0" name="voucher[lines][][debit_amount]" data-action="input->voucher-form#recalculate" inputmode="decimal">
+          <input type="number" step="0.01" min="0" name="voucher[lines][][credit_amount]" data-action="input->voucher-form#recalculate" inputmode="decimal">
+          <input type="text" name="voucher[lines][][note]" placeholder="補足メモ">
+          <button type="button" class="icon-button" aria-label="行を削除" data-action="click->voucher-form#removeRow">✕</button>
+        </div>
+      </template>
+
+      <div class="totals">
+        <div>
+          <p class="eyebrow">借方合計</p>
+          <p class="totals__value" data-voucher-form-target="totalDebit"><%= number_with_delimiter(@totals[:debit]) %></p>
+        </div>
+        <div>
+          <p class="eyebrow">貸方合計</p>
+          <p class="totals__value" data-voucher-form-target="totalCredit"><%= number_with_delimiter(@totals[:credit]) %></p>
+        </div>
+        <div class="balance">
+          <p class="eyebrow">差分</p>
+          <p class="totals__value totals__value--small" data-voucher-form-target="difference"><%= number_with_delimiter(@totals[:debit] - @totals[:credit]) %></p>
+          <span class="badge <%= @totals[:debit] == @totals[:credit] ? "badge--ok" : "badge--warn" %>" data-voucher-form-target="balanceBadge">
+            <%= @totals[:debit] == @totals[:credit] ? "バランスOK" : "調整してください" %>
+          </span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn btn--primary">入力内容を送信</button>
+        <p class="sub">現時点では保存せず、バランス確認と受け付けのみ行います。</p>
+      </div>
+    </section>
+  <% end %>
+</div>

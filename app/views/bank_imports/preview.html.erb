@@ -1,0 +1,55 @@
+<% content_for :title, t(".title") %>
+
+<div class="page-shell">
+  <div class="hero">
+    <p class="eyebrow">IMPORT</p>
+    <h1><%= t(".heading") %></h1>
+    <p class="sub"><%= t(".sub") %></p>
+    <div class="pill-row">
+      <%= link_to t(".back"), new_bank_import_path, class: "pill" %>
+    </div>
+  </div>
+
+  <% if flash[:alert] %>
+    <div class="flash flash--alert"><%= flash[:alert] %></div>
+  <% end %>
+
+  <section class="card card--stacked">
+    <div class="entry-head">
+      <span><%= t(".th.date") %></span>
+      <span><%= t(".th.description") %></span>
+      <span><%= t(".th.deposit") %></span>
+      <span><%= t(".th.withdrawal") %></span>
+    </div>
+    <div class="entry-list">
+      <% @form.parsed_rows.each do |row| %>
+        <div class="entry-row entry-row--list" style="grid-template-columns: 1fr 2fr 1fr 1fr;">
+          <span><%= row[:date] %></span>
+          <span><%= row[:description] %></span>
+          <span class="text-right"><%= number_with_delimiter(row[:deposit]) %></span>
+          <span class="text-right"><%= number_with_delimiter(row[:withdrawal]) %></span>
+        </div>
+      <% end %>
+    </div>
+  </section>
+
+  <%= form_with url: bank_imports_path, method: :post do |f| %>
+    <%= hidden_field_tag "bank_csv_import_form[rows]", @form.rows_json %>
+    <%= hidden_field_tag "bank_csv_import_form[bank_account_code]", @form.bank_account_code %>
+    <%= hidden_field_tag "bank_csv_import_form[deposit_counter_code]", @form.deposit_counter_code %>
+    <%= hidden_field_tag "bank_csv_import_form[withdrawal_counter_code]", @form.withdrawal_counter_code %>
+    <%= hidden_field_tag "bank_csv_import_form[has_header]", @form.has_header %>
+    <%= hidden_field_tag "bank_csv_import_form[date_column]", @form.date_column %>
+    <%= hidden_field_tag "bank_csv_import_form[description_column]", @form.description_column %>
+    <%= hidden_field_tag "bank_csv_import_form[deposit_column]", @form.deposit_column %>
+    <%= hidden_field_tag "bank_csv_import_form[withdrawal_column]", @form.withdrawal_column %>
+    <%= hidden_field_tag "bank_csv_import_form[setting_name]", @form.setting_name %>
+    <%= hidden_field_tag "bank_csv_import_form[setting_id]", @form.setting_id %>
+    <%= hidden_field_tag "bank_csv_import_form[save_setting]", @form.save_setting %>
+
+    <div class="actions" style="margin-top: 12px;">
+      <button type="submit" class="btn btn--primary"><%= t(".submit") %></button>
+      <p class="sub"><%= t(".submit_note") %></p>
+    </div>
+  <% end %>
+</div>

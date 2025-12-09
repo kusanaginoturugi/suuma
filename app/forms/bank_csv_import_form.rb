@@ -21,13 +21,14 @@ class BankCsvImportForm
   attribute :deposit_column, :string, default: "入金額"
   attribute :withdrawal_column, :string, default: "出金額"
   attribute :has_header, :boolean, default: true
+  attribute :rows, :string
   attribute :setting_id, :integer
   attribute :setting_name, :string
   attribute :save_setting, :boolean, default: false
 
-  attr_reader :created_count, :skipped_rows
+  attr_reader :created_count, :skipped_rows, :parsed_rows
 
-  validates :file, presence: true
+  validates :file, presence: true, unless: -> { rows.present? }
   validates :bank_account_code, :deposit_counter_code, :withdrawal_counter_code, presence: true
   validate :accounts_exist
 
@@ -36,57 +37,16 @@ class BankCsvImportForm
 
     @created_count = 0
     @skipped_rows = []
+    @parsed_rows = build_rows
+    errors.add(:base, I18n.t("bank_imports.errors.no_rows")) if @parsed_rows.empty?
+    return false unless errors.empty?
+
     retried_encoding = false
     ActiveRecord::Base.transaction do
       persist_setting if save_setting?
-
-      io = upload_io
-      encoding = detect_encoding(io)
-      io.rewind
-
-      options = { headers: has_header?, encoding: "#{encoding}:UTF-8" }
-      line_no = has_header? ? 2 : 1
-
-      begin
-        CSV.new(io, **options).each do |row|
-          begin
-            amount_in = decimal(cell(row, deposit_column))
-            amount_out = decimal(cell(row, withdrawal_column))
-            if amount_in.zero? && amount_out.zero?
-              skip_row(line_no, :no_amount)
-              next
-            end
-
-            recorded_on = parse_date(cell(row, date_column))
-            if recorded_on.nil?
-              skip_row(line_no, :invalid_date)
-              next
-            end
-
-            description = description_text(row)
-            if description.blank?
-              skip_row(line_no, :blank_description)
-              next
-            end
-
-            if amount_in.positive?
-              create_voucher(recorded_on, description, amount_in, :deposit)
-            elsif amount_out.positive?
-              create_voucher(recorded_on, description, amount_out, :withdrawal)
-            end
-          rescue StandardError => e
-            skip_row(line_no, e.message)
-          ensure
-            line_no += 1
-          end
-        end
-      rescue Encoding::InvalidByteSequenceError, Encoding::UndefinedConversionError
-        raise if retried_encoding
-        retried_encoding = true
-        encoding = "CP932"
-        options[:encoding] = "CP932:UTF-8"
-        io.rewind
-        retry
+      @parsed_rows.each do |row|
+        create_voucher(row[:date], row[:description], row[:deposit].to_d, :deposit) if row[:deposit].to_d.positive?
+        create_voucher(row[:date], row[:description], row[:withdrawal].to_d, :withdrawal) if row[:withdrawal].to_d.positive?
       end
     end
 
@@ -133,6 +93,22 @@ class BankCsvImportForm
 
   def has_header?
     ActiveModel::Type::Boolean.new.cast(has_header)
+  end
+
+  # Parse only, do not persist vouchers
+  def parse_only
+    @created_count = 0
+    @skipped_rows = []
+    @parsed_rows = build_rows
+    errors.add(:base, I18n.t("bank_imports.errors.no_rows")) if @parsed_rows.empty?
+    errors.empty?
+  rescue StandardError => e
+    errors.add(:base, e.message)
+    false
+  end
+
+  def rows_json
+    (parsed_rows || []).to_json
   end
 
   def persist_setting
@@ -255,5 +231,57 @@ class BankCsvImportForm
     return file if file.respond_to?(:read)
 
     raise ArgumentError, "file is required"
+  end
+
+  def build_rows
+    return JSON.parse(rows).map(&:symbolize_keys) if rows.present?
+
+    parsed = []
+    retried_encoding = false
+    io = upload_io
+    encoding = detect_encoding(io)
+    io.rewind
+    options = { headers: has_header?, encoding: "#{encoding}:UTF-8" }
+    line_no = has_header? ? 2 : 1
+
+    begin
+      CSV.new(io, **options).each do |row|
+        begin
+          deposit = decimal(cell(row, deposit_column))
+          withdrawal = decimal(cell(row, withdrawal_column))
+          if deposit.zero? && withdrawal.zero?
+            skip_row(line_no, :no_amount)
+            next
+          end
+
+          date = parse_date(cell(row, date_column))
+          if date.nil?
+            skip_row(line_no, :invalid_date)
+            next
+          end
+
+          description = description_text(row)
+          if description.blank?
+            skip_row(line_no, :blank_description)
+            next
+          end
+
+          parsed << { date: date, description: description, deposit: deposit, withdrawal: withdrawal }
+        rescue StandardError => e
+          skip_row(line_no, e.message)
+        ensure
+          line_no += 1
+        end
+      end
+    rescue Encoding::InvalidByteSequenceError, Encoding::UndefinedConversionError
+      raise if retried_encoding
+      retried_encoding = true
+      encoding = "CP932"
+      options[:encoding] = "CP932:UTF-8"
+      io.rewind
+      retry
+    end
+
+    parsed
   end
 end

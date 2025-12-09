@@ -15,6 +15,16 @@ class BankImportsController < ApplicationController
     @settings = BankImportSetting.order(:name)
     @form = BankCsvImportForm.new(import_params)
 
+    if params[:preview].present?
+      if @form.parse_only
+        render :preview, status: :ok
+      else
+        flash.now[:alert] = @form.errors.full_messages.join(" / ")
+        render :new, status: :unprocessable_entity
+      end
+      return
+    end
+
     if @form.save
       notice = t("bank_imports.flash.imported", count: @form.created_count)
       notice += " " + t("bank_imports.flash.skipped", count: @form.skipped_rows.size) if @form.skipped_rows.present?
@@ -31,7 +41,7 @@ class BankImportsController < ApplicationController
     params.require(:bank_csv_import_form).permit(
       :file, :bank_account_code, :deposit_counter_code, :withdrawal_counter_code,
       :date_column, :description_column, :deposit_column, :withdrawal_column,
-      :setting_id, :setting_name, :save_setting, :has_header
+      :setting_id, :setting_name, :save_setting, :has_header, :rows
     )
   end
 

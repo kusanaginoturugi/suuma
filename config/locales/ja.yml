@@ -95,8 +95,20 @@ ja:
       deposit_column: "入金額列（列名または番号）"
       withdrawal_column: "出金額列（列名または番号）"
       column_hint: "ヘッダー無しなら列番号を入力（1始まり）、ヘッダー有りなら列名か番号どちらでも可。摘要はカンマ・空白区切りで複数指定可"
-      submit: "取り込む"
-      submit_note: "入金は銀行を借方、出金は銀行を貸方として2行仕訳を自動生成します。"
+      preview: "プレビュー"
+      preview_note: "取込前に行内容を確認できます。"
+      submit: "この内容で保存"
+      submit_note: "プレビューで確認した内容を振替伝票として保存します。"
+    preview:
+      title: "取込プレビュー | Summa"
+      heading: "取込プレビュー"
+      sub: "内容を確認して問題なければ保存してください。"
+      back: "CSV取込に戻る"
+      th:
+        date: "日付"
+        description: "摘要"
+        deposit: "入金"
+        withdrawal: "出金"
   accounts:
     categories:
       asset: "資産"

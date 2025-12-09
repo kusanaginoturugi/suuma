@@ -296,4 +296,6 @@ class BankCsvImportForm
 
     parsed
   end
+
+  public :parse_only
 end

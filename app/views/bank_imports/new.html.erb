@@ -17,7 +17,7 @@
     <div class="flash flash--alert"><%= flash[:alert] %></div>
   <% end %>
 
-  <%= form_with model: @form, url: bank_imports_path, local: true, multipart: true, class: "voucher-form card", data: { controller: "bank-import-form" } do |f| %>
+  <%= form_with model: @form, url: bank_imports_path, local: true, multipart: true, class: "voucher-form card", data: { controller: "bank-import-form", turbo: false } do |f| %>
     <div class="field-grid">
       <div class="field field--full">
         <%= f.label :setting_id, t(".setting_id") %>

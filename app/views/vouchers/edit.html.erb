@@ -1,0 +1,18 @@
+<% content_for :title, t("vouchers.edit.title", default: "振替伝票の編集 | Summa") %>
+
+<div class="page-shell">
+  <div class="hero">
+    <p class="eyebrow">DOUBLE-ENTRY</p>
+    <h1><%= t("vouchers.edit.heading", default: "振替伝票の編集") %></h1>
+    <p class="sub"><%= t("vouchers.edit.sub", default: "保存済み伝票の明細を修正します。") %></p>
+  </div>
+
+  <% if flash[:notice] %>
+    <div class="flash flash--notice"><%= flash[:notice] %></div>
+  <% end %>
+  <% if flash[:alert] %>
+    <div class="flash flash--alert"><%= flash[:alert] %></div>
+  <% end %>
+
+  <%= render "form", voucher: @voucher, accounts: @accounts, submit_label: t("vouchers.edit.submit", default: "更新") %>
+</div>

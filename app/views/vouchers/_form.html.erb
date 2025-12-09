@@ -1,0 +1,101 @@
+<%= form_with model: voucher, url: voucher.persisted? ? voucher_path(voucher) : vouchers_path, method: voucher.persisted? ? :patch : :post, class: "voucher-form", data: { controller: "voucher-form" } do |f| %>
+  <section class="card card--stacked">
+    <div class="card__header">
+      <div>
+        <p class="eyebrow"><%= t("vouchers.new.header_tag") %></p>
+        <h2><%= t("vouchers.new.header_title") %></h2>
+      </div>
+    </div>
+    <div class="field-grid">
+      <div class="field">
+        <%= f.label :recorded_on, t("vouchers.new.recorded_on") %>
+        <%= f.date_field :recorded_on, value: voucher.recorded_on, required: true %>
+      </div>
+      <div class="field">
+        <%= f.label :voucher_number, t("vouchers.new.voucher_number") %>
+        <%= f.text_field :voucher_number, value: voucher.voucher_number, required: true, placeholder: t("vouchers.new.voucher_number_placeholder") %>
+      </div>
+      <div class="field field--full">
+        <%= f.label :description, t("vouchers.new.description") %>
+        <%= f.text_field :description, value: voucher.description, placeholder: t("vouchers.new.description_placeholder") %>
+      </div>
+    </div>
+  </section>
+
+  <section class="card card--stacked">
+    <div class="card__header">
+      <div>
+        <p class="eyebrow"><%= t("vouchers.new.detail_tag") %></p>
+        <h2><%= t("vouchers.new.detail_title") %></h2>
+        <p class="sub"><%= t("vouchers.new.detail_sub") %></p>
+      </div>
+      <div class="card__actions">
+        <button type="button" class="btn btn--ghost" data-action="click->voucher-form#addRow"><%= t("vouchers.new.add_row") %></button>
+      </div>
+    </div>
+
+    <div class="entry-head">
+      <span><%= t("vouchers.new.account_code") %></span>
+      <span><%= t("vouchers.new.debit_amount") %></span>
+      <span><%= t("vouchers.new.credit_amount") %></span>
+      <span><%= t("vouchers.new.note") %></span>
+      <span></span>
+    </div>
+
+    <div class="entry-list" data-voucher-form-target="rows" data-next-index="<%= voucher.voucher_lines.size %>">
+      <% voucher.voucher_lines.each do |line| %>
+        <%= f.fields_for :voucher_lines, line do |lf| %>
+          <div class="entry-row" data-voucher-form-target="row" data-existing-line="true">
+            <%= lf.text_field :account_code, placeholder: t("vouchers.new.account_code_placeholder"), list: "account-codes" %>
+            <%= lf.number_field :debit_amount, step: 0.01, min: 0, data: { action: "input->voucher-form#recalculate" }, inputmode: "decimal" %>
+            <%= lf.number_field :credit_amount, step: 0.01, min: 0, data: { action: "input->voucher-form#recalculate" }, inputmode: "decimal" %>
+            <%= lf.text_field :note, placeholder: t("vouchers.new.note_placeholder") %>
+            <%= lf.hidden_field :_destroy, value: 0, data: { voucher_form_target: "destroyFlag" } %>
+            <button type="button" class="icon-button" aria-label="行を削除" data-action="click->voucher-form#removeRow">✕</button>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+
+    <template data-voucher-form-target="rowTemplate">
+      <div class="entry-row" data-voucher-form-target="row">
+        <input type="text" name="voucher[voucher_lines_attributes][__INDEX__][account_code]" placeholder="<%= t("vouchers.new.account_code") %>" list="account-codes">
+        <input type="number" step="0.01" min="0" name="voucher[voucher_lines_attributes][__INDEX__][debit_amount]" data-action="input->voucher-form#recalculate" inputmode="decimal">
+        <input type="number" step="0.01" min="0" name="voucher[voucher_lines_attributes][__INDEX__][credit_amount]" data-action="input->voucher-form#recalculate" inputmode="decimal">
+        <input type="text" name="voucher[voucher_lines_attributes][__INDEX__][note]" placeholder="<%= t("vouchers.new.note_placeholder") %>">
+        <input type="hidden" name="voucher[voucher_lines_attributes][__INDEX__][_destroy]" value="0" data-voucher-form-target="destroyFlag">
+        <button type="button" class="icon-button" aria-label="行を削除" data-action="click->voucher-form#removeRow">✕</button>
+      </div>
+    </template>
+
+    <datalist id="account-codes">
+      <% (@accounts || []).each do |account| %>
+        <option value="<%= account.code %>"><%= "#{account.code} #{account.name}" %></option>
+      <% end %>
+    </datalist>
+
+    <div class="totals">
+      <div>
+        <p class="eyebrow"><%= t("vouchers.new.totals.debit") %></p>
+        <p class="totals__value" data-voucher-form-target="totalDebit"><%= number_with_delimiter(voucher.total_debit) %></p>
+      </div>
+      <div>
+        <p class="eyebrow"><%= t("vouchers.new.totals.credit") %></p>
+        <p class="totals__value" data-voucher-form-target="totalCredit"><%= number_with_delimiter(voucher.total_credit) %></p>
+      </div>
+      <div class="balance">
+        <p class="eyebrow"><%= t("vouchers.new.totals.diff") %></p>
+        <p class="totals__value totals__value--small" data-voucher-form-target="difference"><%= number_with_delimiter(voucher.balance_difference) %></p>
+        <span class="badge <%= voucher.balance_difference.zero? ? "badge--ok" : "badge--warn" %>" data-voucher-form-target="balanceBadge"
+          data-badge-ok-text="<%= t('vouchers.new.totals.ok') %>" data-badge-warn-text="<%= t('vouchers.new.totals.warn') %>">
+          <%= voucher.balance_difference.zero? ? t("vouchers.new.totals.ok") : t("vouchers.new.totals.warn") %>
+        </span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn btn--primary"><%= submit_label || t("vouchers.new.submit") %></button>
+      <p class="sub"><%= t("vouchers.new.submit_note") %></p>
+    </div>
+  </section>
+<% end %>

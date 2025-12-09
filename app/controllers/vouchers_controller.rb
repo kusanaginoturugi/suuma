@@ -1,4 +1,6 @@
 class VouchersController < ApplicationController
+  before_action :set_voucher, only: %i[edit update]
+
   def index
     @vouchers = Voucher.includes(:voucher_lines).order(recorded_on: :desc, created_at: :desc)
   end
@@ -22,7 +24,25 @@ class VouchersController < ApplicationController
     end
   end
 
+  def edit
+    load_accounts
+  end
+
+  def update
+    load_accounts
+    if @voucher.update(voucher_params)
+      redirect_to vouchers_path, notice: t("vouchers.flash.updated", default: "振替伝票を更新しました")
+    else
+      flash.now[:alert] = @voucher.errors.full_messages.join(" / ")
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
   private
+
+  def set_voucher
+    @voucher = Voucher.includes(:voucher_lines).find(params[:id])
+  end
 
   def voucher_params
     params.require(:voucher).permit(:recorded_on, :voucher_number, :description,

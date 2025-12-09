@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  resources :vouchers, only: %i[index new create]
+  resources :vouchers, only: %i[index new create edit update]
   resources :bank_imports, only: %i[new create]
   resources :accounts, only: %i[index new create edit update]
 

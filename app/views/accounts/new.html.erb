@@ -1,0 +1,17 @@
+<% content_for :title, t("accounts.new.title") %>
+
+<div class="page-shell">
+  <div class="hero">
+    <p class="eyebrow">ACCOUNTS</p>
+    <h1><%= t("accounts.new.heading") %></h1>
+    <p class="sub"><%= t("accounts.new.sub") %></p>
+  </div>
+
+  <% if flash[:alert] %>
+    <div class="flash flash--alert"><%= flash[:alert] %></div>
+  <% end %>
+
+  <%= form_with model: @account, url: accounts_path do |f| %>
+    <%= render "form", form: f %>
+  <% end %>
+</div>

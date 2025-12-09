@@ -1,0 +1,17 @@
+<% content_for :title, t("accounts.edit.title") %>
+
+<div class="page-shell">
+  <div class="hero">
+    <p class="eyebrow">ACCOUNTS</p>
+    <h1><%= t("accounts.edit.heading") %></h1>
+    <p class="sub"><%= t("accounts.edit.sub", code: @account.code) %></p>
+  </div>
+
+  <% if flash[:alert] %>
+    <div class="flash flash--alert"><%= flash[:alert] %></div>
+  <% end %>
+
+  <%= form_with model: @account, url: account_path(@account), method: :patch do |f| %>
+    <%= render "form", form: f %>
+  <% end %>
+</div>

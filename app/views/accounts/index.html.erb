@@ -1,0 +1,56 @@
+<% content_for :title, t("accounts.index.title") %>
+
+<div class="page-shell">
+  <div class="hero">
+    <p class="eyebrow">ACCOUNTS</p>
+    <h1><%= t("accounts.index.heading") %></h1>
+    <p class="sub"><%= t("accounts.index.sub") %></p>
+    <div class="pill-row">
+      <span class="pill"><%= t("accounts.index.count", count: @accounts.size) %></span>
+      <%= link_to t("accounts.index.new_button"), new_account_path, class: "pill pill--accent" %>
+    </div>
+  </div>
+
+  <% if flash[:notice] %>
+    <div class="flash flash--notice"><%= flash[:notice] %></div>
+  <% end %>
+  <% if flash[:alert] %>
+    <div class="flash flash--alert"><%= flash[:alert] %></div>
+  <% end %>
+
+  <section class="card card--stacked">
+    <div class="entry-head">
+      <span><%= t("accounts.index.th.code") %></span>
+      <span><%= t("accounts.index.th.name") %></span>
+      <span><%= t("accounts.index.th.category") %></span>
+      <span></span>
+    </div>
+    <div class="entry-list">
+      <% groups = @accounts.group_by(&:category) %>
+      <% Account::CATEGORIES.each do |cat| %>
+        <% next unless groups[cat].present? %>
+        <div class="entry-row entry-row--list" style="grid-template-columns: 1fr 2fr 1fr 120px;">
+          <strong><%= t("accounts.categories.#{cat}") %></strong>
+          <span></span><span></span><span></span>
+        </div>
+        <% children = groups[cat].group_by(&:parent_code) %>
+        <% render_nodes = lambda do |parent_code, level|
+             (children[parent_code] || []).each do |acc|
+        %>
+          <div class="entry-row entry-row--list" style="grid-template-columns: 1fr 2fr 1fr 120px;">
+            <span><%= acc.code %></span>
+            <span style="padding-left: <%= level * 16 %>px;"><%= acc.name %></span>
+            <span><%= t("accounts.categories.#{acc.category}") %></span>
+            <span class="text-right">
+              <%= link_to t("accounts.index.edit"), edit_account_path(acc), class: "btn btn--ghost", style: "padding:6px 10px;" %>
+            </span>
+          </div>
+          <% render_nodes.call(acc.code, level + 1) %>
+        <%   end
+           end
+        %>
+        <% render_nodes.call(nil, 0) %>
+      <% end %>
+    </div>
+  </section>
+</div>

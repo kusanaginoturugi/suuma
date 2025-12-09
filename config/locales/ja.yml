@@ -7,6 +7,7 @@ ja:
       index: "伝票一覧"
       new: "伝票入力"
     bank_imports: "CSV取込"
+    accounts: "勘定科目"
     theme:
       to_light: "ライトモードに切替"
       to_dark: "ダークモードに切替"
@@ -96,3 +97,40 @@ ja:
       column_hint: "ヘッダー無しなら列番号を入力（1始まり）、ヘッダー有りなら列名か番号どちらでも可"
       submit: "取り込む"
       submit_note: "入金は銀行を借方、出金は銀行を貸方として2行仕訳を自動生成します。"
+  accounts:
+    categories:
+      asset: "資産"
+      liability: "負債"
+      equity: "純資産"
+      revenue: "収益"
+      expense: "費用"
+    flash:
+      created: "勘定科目を作成しました"
+      updated: "勘定科目を更新しました"
+    index:
+      title: "勘定科目一覧 | Summa"
+      heading: "勘定科目一覧"
+      sub: "親子構造で科目を確認できます。"
+      count: "%{count} 科目"
+      new_button: "新規科目を追加"
+      edit: "編集"
+      th:
+        code: "コード"
+        name: "名称"
+        category: "区分"
+    new:
+      title: "勘定科目の追加 | Summa"
+      heading: "勘定科目の追加"
+      sub: "コード・名称・区分を入力し、必要なら親科目を選択します。"
+    edit:
+      title: "勘定科目の編集 | Summa"
+      heading: "勘定科目の編集"
+      sub: "科目 %{code} を編集します。"
+    form:
+      code: "科目コード"
+      name: "科目名"
+      category: "区分"
+      parent: "親科目（任意）"
+      no_parent: "親なし"
+      submit: "保存"
+      back: "一覧に戻る"

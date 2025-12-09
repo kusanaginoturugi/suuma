@@ -310,6 +310,10 @@ input:focus {
   grid-template-columns: repeat(5, 1fr);
 }
 
+.entry-row--list .btn {
+  font-size: 12px;
+}
+
 .entry-row input[type="number"] {
   text-align: right;
 }
@@ -431,4 +435,15 @@ input:focus {
 
 .text-right {
   text-align: right;
+}
+
+.category-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  font-size: 12px;
 }

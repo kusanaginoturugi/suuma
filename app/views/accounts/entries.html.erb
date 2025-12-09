@@ -18,6 +18,10 @@
   <% end %>
 
   <section class="card card--stacked">
+    <p class="sub">
+      <%= t("accounts.entries.including", default: "含まれる科目:") %>
+      <%= @included_codes.join(", ") %>
+    </p>
     <div class="entry-head">
       <span><%= t("accounts.entries.th.date") %></span>
       <span><%= t("accounts.entries.th.description") %></span>

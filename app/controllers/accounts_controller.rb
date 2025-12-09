@@ -35,8 +35,10 @@ class AccountsController < ApplicationController
 
   def entries
     @account = Account.find(params[:id])
+    codes = [@account.code] + descendant_codes(@account)
+    @included_codes = codes
     @lines = VoucherLine.includes(:voucher)
-                        .where(account_code: @account.code)
+                        .where(account_code: codes)
                         .order("vouchers.recorded_on ASC, vouchers.id ASC, voucher_lines.id ASC")
   end
 
@@ -48,6 +50,18 @@ class AccountsController < ApplicationController
 
   def load_accounts
     @accounts = Account.order(:category, :code)
+  end
+
+  def descendant_codes(account)
+    codes = []
+    queue = [account]
+    while queue.any?
+      parent = queue.shift
+      children = Account.where(parent_code: parent.code)
+      codes.concat(children.pluck(:code))
+      queue.concat(children)
+    end
+    codes
   end
 
   def account_params

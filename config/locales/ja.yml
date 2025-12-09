@@ -147,6 +147,7 @@ ja:
       heading: "%{name}（%{code}）の明細"
       sub: "入出金と貸借残高を確認できます。"
       back: "勘定科目一覧に戻る"
+      including: "含まれる科目"
       th:
         date: "日付"
         description: "摘要"

@@ -265,10 +265,6 @@ class BankCsvImportForm
         end
 
         description = description_text(row)
-        if description.blank?
-          skip_row(line_no, :blank_description)
-          next
-        end
 
         parsed << { date: date, description: description, deposit: deposit, withdrawal: withdrawal }
       rescue StandardError => e

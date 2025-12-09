@@ -137,6 +137,7 @@ ja:
       count: "%{count} 科目"
       new_button: "新規科目を追加"
       edit: "編集"
+      entries: "明細"
       th:
         code: "コード"
         name: "名称"

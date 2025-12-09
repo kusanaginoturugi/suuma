@@ -20,6 +20,7 @@ ja:
       sub: "保存済みの伝票を確認できます。新規入力は右上のボタンから。"
       saved_count: "保存済み %{count} 件"
       new_button: "新規入力"
+      edit: "編集"
       empty: "まだ振替伝票がありません。"
       th:
         recorded_on: "起票日"

@@ -238,50 +238,44 @@ class BankCsvImportForm
   def build_rows
     return JSON.parse(rows).map(&:symbolize_keys) if rows.present?
 
-    parsed = []
-    retried_encoding = false
     io = upload_io
     encoding = detect_encoding(io)
     io.rewind
-    options = { headers: has_header?, encoding: "#{encoding}:UTF-8" }
-    line_no = has_header? ? 2 : 1
 
-    begin
-      CSV.new(io, **options).each do |row|
-        begin
-          deposit = decimal(cell(row, deposit_column))
-          withdrawal = decimal(cell(row, withdrawal_column))
-          if deposit.zero? && withdrawal.zero?
-            skip_row(line_no, :no_amount)
-            next
-          end
+    raw = io.read
+    raw.force_encoding(encoding)
+    utf8 = raw.encode("UTF-8", invalid: :replace, undef: :replace, replace: "")
 
-          date = parse_date(cell(row, date_column))
-          if date.nil?
-            skip_row(line_no, :invalid_date)
-            next
-          end
+    csv = CSV.parse(utf8, headers: has_header?)
+    line_no_offset = has_header? ? 2 : 1
 
-          description = description_text(row)
-          if description.blank?
-            skip_row(line_no, :blank_description)
-            next
-          end
-
-          parsed << { date: date, description: description, deposit: deposit, withdrawal: withdrawal }
-        rescue StandardError => e
-          skip_row(line_no, e.message)
-        ensure
-          line_no += 1
+    parsed = []
+    csv.each_with_index do |row, idx|
+      line_no = line_no_offset + idx
+      begin
+        deposit = decimal(cell(row, deposit_column))
+        withdrawal = decimal(cell(row, withdrawal_column))
+        if deposit.zero? && withdrawal.zero?
+          skip_row(line_no, :no_amount)
+          next
         end
+
+        date = parse_date(cell(row, date_column))
+        if date.nil?
+          skip_row(line_no, :invalid_date)
+          next
+        end
+
+        description = description_text(row)
+        if description.blank?
+          skip_row(line_no, :blank_description)
+          next
+        end
+
+        parsed << { date: date, description: description, deposit: deposit, withdrawal: withdrawal }
+      rescue StandardError => e
+        skip_row(line_no, e.message)
       end
-    rescue Encoding::InvalidByteSequenceError, Encoding::UndefinedConversionError
-      raise if retried_encoding
-      retried_encoding = true
-      encoding = "CP932"
-      options[:encoding] = "CP932:UTF-8"
-      io.rewind
-      retry
     end
 
     parsed

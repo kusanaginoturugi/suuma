@@ -2,6 +2,9 @@ accounts = [
   # 資産
   ["101", "現金", :asset],
   ["102", "普通預金", :asset],
+  ["10201", "普通預金（三菱UFJ）", :asset, "102"],
+  ["10202", "普通預金（みずほ）", :asset, "102"],
+  ["10203", "普通預金（楽天銀行）", :asset, "102"],
   ["103", "当座預金", :asset],
   ["105", "受取手形", :asset],
   ["106", "売掛金", :asset],
@@ -54,9 +57,10 @@ accounts = [
   ["520", "雑費", :expense],
 ]
 
-accounts.each do |code, name, category|
+accounts.each do |code, name, category, parent_code|
   Account.find_or_create_by!(code: code) do |account|
     account.name = name
     account.category = category
+    account.parent_code = parent_code
   end
 end

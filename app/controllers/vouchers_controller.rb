@@ -2,10 +2,12 @@ class VouchersController < ApplicationController
   def new
     @voucher = Voucher.new(recorded_on: Date.current, voucher_number: default_number)
     2.times { @voucher.voucher_lines.build }
+    load_accounts
   end
 
   def create
     @voucher = Voucher.new(voucher_params)
+    load_accounts
 
     if @voucher.save
       redirect_to new_voucher_path, notice: "振替伝票を保存しました"
@@ -20,10 +22,14 @@ class VouchersController < ApplicationController
 
   def voucher_params
     params.require(:voucher).permit(:recorded_on, :voucher_number, :description,
-      voucher_lines_attributes: %i[id account debit_amount credit_amount note _destroy])
+      voucher_lines_attributes: %i[id account_code account debit_amount credit_amount note _destroy])
   end
 
   def default_number
     Date.current.strftime("%Y%m%d-001")
+  end
+
+  def load_accounts
+    @accounts = Account.order(:code)
   end
 end

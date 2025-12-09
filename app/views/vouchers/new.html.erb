@@ -58,7 +58,7 @@
       </div>
 
       <div class="entry-head">
-        <span>勘定科目</span>
+        <span>科目コード</span>
         <span>借方金額</span>
         <span>貸方金額</span>
         <span>摘要</span>
@@ -69,7 +69,7 @@
         <% @voucher.voucher_lines.each do |line| %>
           <%= f.fields_for :voucher_lines, line do |lf| %>
             <div class="entry-row" data-voucher-form-target="row">
-              <%= lf.text_field :account, placeholder: "現金 / 売上 / 旅費交通費など" %>
+              <%= lf.text_field :account_code, placeholder: "例) 101", list: "account-codes" %>
               <%= lf.number_field :debit_amount, step: 0.01, min: 0, data: { action: "input->voucher-form#recalculate" }, inputmode: "decimal" %>
               <%= lf.number_field :credit_amount, step: 0.01, min: 0, data: { action: "input->voucher-form#recalculate" }, inputmode: "decimal" %>
               <%= lf.text_field :note, placeholder: "補足メモ" %>
@@ -81,13 +81,19 @@
 
       <template data-voucher-form-target="rowTemplate">
         <div class="entry-row" data-voucher-form-target="row">
-          <input type="text" name="voucher[voucher_lines_attributes][__INDEX__][account]" placeholder="勘定科目">
+          <input type="text" name="voucher[voucher_lines_attributes][__INDEX__][account_code]" placeholder="科目コード" list="account-codes">
           <input type="number" step="0.01" min="0" name="voucher[voucher_lines_attributes][__INDEX__][debit_amount]" data-action="input->voucher-form#recalculate" inputmode="decimal">
           <input type="number" step="0.01" min="0" name="voucher[voucher_lines_attributes][__INDEX__][credit_amount]" data-action="input->voucher-form#recalculate" inputmode="decimal">
           <input type="text" name="voucher[voucher_lines_attributes][__INDEX__][note]" placeholder="補足メモ">
           <button type="button" class="icon-button" aria-label="行を削除" data-action="click->voucher-form#removeRow">✕</button>
         </div>
       </template>
+
+      <datalist id="account-codes">
+        <% @accounts.each do |account| %>
+          <option value="<%= account.code %>"><%= "#{account.code} #{account.name}" %></option>
+        <% end %>
+      </datalist>
 
       <div class="totals">
         <div>

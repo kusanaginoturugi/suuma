@@ -147,12 +147,13 @@ class BankCsvImportForm
 
   def cell(row, key)
     # key: column name or 1-based index (String/Integer)
-    if has_header?
-      return row[key] unless numeric?(key)
-      row[numeric_index(key)]
-    else
-      row[numeric_index(key)]
-    end
+    raw =
+      if has_header?
+        numeric?(key) ? row[numeric_index(key)] : row[key]
+      else
+        row[numeric_index(key)]
+      end
+    normalize_string(raw)
   end
 
   def numeric?(value)
@@ -161,7 +162,7 @@ class BankCsvImportForm
 
   def description_text(row)
     cols = split_columns(description_column)
-    parts = cols.map { |col| cell(row, col).to_s.strip }.reject(&:blank?)
+    parts = cols.map { |col| cell(row, col).strip }.reject(&:blank?)
     parts.join(" / ")
   end
 
@@ -198,7 +199,7 @@ class BankCsvImportForm
   end
 
   def parse_date(value)
-    str = value.to_s.strip
+    str = normalize_string(value).strip
     return nil if str.blank?
 
     if str.match?(/\A\d{4}年\d{1,2}月\d{1,2}日\z/)
@@ -216,12 +217,20 @@ class BankCsvImportForm
   end
 
   def decimal(value)
-    str = value.to_s
+    str = normalize_string(value)
     negative = str.include?("▲") || str.include?("(") || str.start_with?("-")
     cleaned = str.tr("¥￥,\\", "").gsub(/[()\s]/, "")
     num = BigDecimal(cleaned.presence || "0")
     negative ? -num : num
   rescue ArgumentError, TypeError
     0.to_d
+  end
+
+  def normalize_string(val)
+    str = val.to_s
+    return "" if str.empty?
+    str = str.dup
+    str.force_encoding(Encoding::UTF_8) if str.encoding == Encoding::ASCII_8BIT
+    str.encode("UTF-8", invalid: :replace, undef: :replace, replace: "")
   end
 end

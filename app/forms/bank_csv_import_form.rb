@@ -131,6 +131,10 @@ class BankCsvImportForm
     ActiveModel::Type::Boolean.new.cast(save_setting) || setting_name.present?
   end
 
+  def has_header?
+    ActiveModel::Type::Boolean.new.cast(has_header)
+  end
+
   def persist_setting
     setting = if setting_id.present?
                 BankImportSetting.find_by(id: setting_id)

@@ -74,8 +74,6 @@ class BankCsvImportForm
     (parsed_rows || []).to_json
   end
 
-  public :parse_only
-
   private
 
   def accounts_exist

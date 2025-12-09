@@ -1,24 +1,47 @@
-# README
+# Summa
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+複式簿記の振替伝票入力と銀行明細CSV取込に対応したミニマルな Rails アプリです。
 
-Things you may want to cover:
+## 主な機能
+- 振替伝票の新規入力・保存・一覧表示（借貸バランス検証付き）
+- 勘定科目マスタ（青色申告で一般的な科目とコードをプリセット）
+- 銀行明細CSV取込（UTF-8 / CP932 自動判別）
+  - 銀行口座・入金/出金相手科目を指定して自動仕訳
+  - 列名マッピングを保存できる「銀行別インポート設定」
+- ダーク/ライト切替、簡易ナビゲーション
 
-* Ruby version
+## 動作環境
+- Ruby 3.4
+- Rails 8.1
+- SQLite（開発/テスト）
 
-* System dependencies
+## セットアップ
+```sh
+bin/setup
+```
+（DB作成・マイグレーション・seed投入まで実行します）
 
-* Configuration
+## 開発サーバ起動
+```sh
+bin/rails server
+# または foreman 等で bin/dev
+```
+`http://localhost:3000/` にアクセス。
 
-* Database creation
+## 画面の使い方
+- 伝票入力: ナビの「伝票入力」→ 借方/貸方を入力し「保存」。
+- 伝票一覧: ナビの「伝票一覧」で保存済み伝票を確認。
+- CSV取込: ナビの「CSV取込」→ 明細CSVを選択し、科目コード・列名を指定して取り込み。
+  - 科目コードは datalist から選択可。設定名を付けて保存すると次回選択だけで反映されます。
 
-* Database initialization
+## 文字コードとCSV
+- BOM 付き UTF-8 はそのまま。BOM がなく UTF-8 判定に失敗した場合は CP932 として読み込みます。
+- 金額は「入金額」「出金額」列（デフォルト）を参照。列名は画面で変更可能です。
 
-* How to run the test suite
+## テスト
+```sh
+bin/rails test
+```
 
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## ライセンス
+MIT License

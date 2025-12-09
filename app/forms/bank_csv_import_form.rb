@@ -99,8 +99,9 @@ class BankCsvImportForm
 
   def detect_encoding(io)
     io.rewind
-    sample = io.read(4000) || ""
-    return "UTF-8" if sample.start_with?("\uFEFF")
+    sample = (io.read(4000) || "").dup
+    sample.force_encoding(Encoding::ASCII_8BIT)
+    return "UTF-8" if sample.start_with?("\xEF\xBB\xBF".b)
 
     if HAS_NKF
       guessed = NKF.guess(sample)
@@ -109,6 +110,7 @@ class BankCsvImportForm
     end
 
     utf8_sample = sample.dup.force_encoding("UTF-8")
+    utf8_sample.encode!("UTF-8", invalid: :replace, undef: :replace, replace: "")
     return "UTF-8" if utf8_sample.valid_encoding?
 
     "CP932"

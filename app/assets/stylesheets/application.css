@@ -460,16 +460,16 @@ input:focus {
 
 /* Category colors (light/dark) */
 [data-theme="light"] .cat-asset { background: #ecfdf3; border-color: #bbf7d0; }
-[data-theme="light"] .cat-liability { background: #eef2ff; border-color: #c7d2fe; }
+[data-theme="light"] .cat-liability { background: #fff1f2; border-color: #fecdd3; }
 [data-theme="light"] .cat-equity { background: #fefce8; border-color: #fde68a; }
 [data-theme="light"] .cat-revenue { background: #e0f2fe; border-color: #bae6fd; }
-[data-theme="light"] .cat-expense { background: #fff1f2; border-color: #fecdd3; }
+[data-theme="light"] .cat-expense { background: #eef2ff; border-color: #c7d2fe; }
 
 [data-theme="dark"] .cat-asset { background: rgba(34, 197, 94, 0.08); border-color: rgba(34, 197, 94, 0.3); }
-[data-theme="dark"] .cat-liability { background: rgba(99, 102, 241, 0.12); border-color: rgba(129, 140, 248, 0.3); }
+[data-theme="dark"] .cat-liability { background: rgba(248, 113, 113, 0.12); border-color: rgba(248, 113, 113, 0.35); }
 [data-theme="dark"] .cat-equity { background: rgba(245, 158, 11, 0.12); border-color: rgba(251, 191, 36, 0.35); }
 [data-theme="dark"] .cat-revenue { background: rgba(59, 130, 246, 0.12); border-color: rgba(96, 165, 250, 0.35); }
-[data-theme="dark"] .cat-expense { background: rgba(248, 113, 113, 0.12); border-color: rgba(248, 113, 113, 0.35); }
+[data-theme="dark"] .cat-expense { background: rgba(99, 102, 241, 0.12); border-color: rgba(129, 140, 248, 0.3); }
 
 .category-label {
   display: inline-flex;

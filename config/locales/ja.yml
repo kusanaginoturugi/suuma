@@ -49,6 +49,7 @@ ja:
       description: "摘要 / メモ"
       description_placeholder: "例）オフィス家賃振替"
       account_code: "科目コード"
+      account_name: "科目名"
       account_code_placeholder: "例) 101"
       debit_amount: "借方金額"
       credit_amount: "貸方金額"

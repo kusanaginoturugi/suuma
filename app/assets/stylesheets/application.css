@@ -297,7 +297,7 @@ input:focus {
 
 .entry-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 2fr 42px;
+  grid-template-columns: 1.2fr 1.4fr 1fr 1fr 2fr 42px;
   gap: 8px;
   align-items: center;
   padding: 10px 12px;
@@ -439,6 +439,11 @@ input:focus {
 
 .text-right {
   text-align: right;
+}
+
+.account-name {
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .category-label {

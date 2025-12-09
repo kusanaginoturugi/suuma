@@ -1,11 +1,13 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["rows", "rowTemplate", "totalDebit", "totalCredit", "difference", "balanceBadge"]
+  static targets = ["rows", "rowTemplate", "totalDebit", "totalCredit", "difference", "balanceBadge", "accountName", "accountCode"]
+  static values = { accountsMap: Object }
 
   connect() {
     this.nextIndex = parseInt(this.rowsTarget.dataset.nextIndex || this.rowsTarget.children.length, 10)
     this.recalculate()
+    this.refreshAllAccountNames()
   }
 
   addRow() {
@@ -47,6 +49,31 @@ export default class extends Controller {
     this.totalCreditTarget.textContent = this.formatAmount(credit)
     this.differenceTarget.textContent = this.formatAmount(difference)
     this.updateBadge(difference)
+  }
+
+  updateAccountName(event) {
+    const input = event.target
+    const row = input.closest("[data-voucher-form-target='row']")
+    if (!row) return
+    const span = row.querySelector("[data-voucher-form-target='accountName']")
+    if (!span) return
+    const name = this.lookupAccountName(input.value)
+    span.textContent = name || ""
+  }
+
+  refreshAllAccountNames() {
+    this.accountCodeTargets.forEach((input) => {
+      const row = input.closest("[data-voucher-form-target='row']")
+      const span = row?.querySelector("[data-voucher-form-target='accountName']")
+      if (!span) return
+      span.textContent = this.lookupAccountName(input.value) || ""
+    })
+  }
+
+  lookupAccountName(code) {
+    if (!code) return null
+    const map = this.accountsMapValue || {}
+    return map[code] || null
   }
 
   updateBadge(difference) {

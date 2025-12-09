@@ -1,4 +1,4 @@
-<%= form_with model: voucher, url: voucher.persisted? ? voucher_path(voucher) : vouchers_path, method: voucher.persisted? ? :patch : :post, class: "voucher-form", data: { controller: "voucher-form" } do |f| %>
+<%= form_with model: voucher, url: voucher.persisted? ? voucher_path(voucher) : vouchers_path, method: voucher.persisted? ? :patch : :post, class: "voucher-form", data: { controller: "voucher-form", voucher_form_accounts_map_value: (@accounts || []).index_by(&:code).transform_values(&:name).to_json } do |f| %>
   <section class="card card--stacked">
     <div class="card__header">
       <div>
@@ -36,6 +36,7 @@
 
     <div class="entry-head">
       <span><%= t("vouchers.new.account_code") %></span>
+      <span><%= t("vouchers.new.account_name") %></span>
       <span><%= t("vouchers.new.debit_amount") %></span>
       <span><%= t("vouchers.new.credit_amount") %></span>
       <span><%= t("vouchers.new.note") %></span>
@@ -46,7 +47,8 @@
       <% voucher.voucher_lines.each do |line| %>
         <%= f.fields_for :voucher_lines, line do |lf| %>
           <div class="entry-row" data-voucher-form-target="row" data-existing-line="true">
-            <%= lf.text_field :account_code, placeholder: t("vouchers.new.account_code_placeholder"), list: "account-codes" %>
+            <%= lf.text_field :account_code, placeholder: t("vouchers.new.account_code_placeholder"), list: "account-codes", data: { action: "input->voucher-form#updateAccountName", voucher_form_target: "accountCode" } %>
+            <span class="account-name" data-voucher-form-target="accountName"><%= line.account.presence || "" %></span>
             <%= lf.number_field :debit_amount, step: 0.01, min: 0, data: { action: "input->voucher-form#recalculate" }, inputmode: "decimal" %>
             <%= lf.number_field :credit_amount, step: 0.01, min: 0, data: { action: "input->voucher-form#recalculate" }, inputmode: "decimal" %>
             <%= lf.text_field :note, placeholder: t("vouchers.new.note_placeholder") %>
@@ -59,7 +61,8 @@
 
     <template data-voucher-form-target="rowTemplate">
       <div class="entry-row" data-voucher-form-target="row">
-        <input type="text" name="voucher[voucher_lines_attributes][__INDEX__][account_code]" placeholder="<%= t("vouchers.new.account_code") %>" list="account-codes">
+        <input type="text" name="voucher[voucher_lines_attributes][__INDEX__][account_code]" placeholder="<%= t("vouchers.new.account_code") %>" list="account-codes" data-action="input->voucher-form#updateAccountName" data-voucher-form-target="accountCode">
+        <span class="account-name" data-voucher-form-target="accountName"></span>
         <input type="number" step="0.01" min="0" name="voucher[voucher_lines_attributes][__INDEX__][debit_amount]" data-action="input->voucher-form#recalculate" inputmode="decimal">
         <input type="number" step="0.01" min="0" name="voucher[voucher_lines_attributes][__INDEX__][credit_amount]" data-action="input->voucher-form#recalculate" inputmode="decimal">
         <input type="text" name="voucher[voucher_lines_attributes][__INDEX__][note]" placeholder="<%= t("vouchers.new.note_placeholder") %>">

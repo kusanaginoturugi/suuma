@@ -1,4 +1,8 @@
 class VouchersController < ApplicationController
+  def index
+    @vouchers = Voucher.includes(:voucher_lines).order(recorded_on: :desc, created_at: :desc)
+  end
+
   def new
     @voucher = Voucher.new(recorded_on: Date.current, voucher_number: default_number)
     2.times { @voucher.voucher_lines.build }
@@ -10,7 +14,7 @@ class VouchersController < ApplicationController
     load_accounts
 
     if @voucher.save
-      redirect_to new_voucher_path, notice: "振替伝票を保存しました"
+      redirect_to vouchers_path, notice: "振替伝票を保存しました"
     else
       @voucher.voucher_lines.build if @voucher.voucher_lines.empty?
       flash.now[:alert] = @voucher.errors.full_messages.join(" / ")

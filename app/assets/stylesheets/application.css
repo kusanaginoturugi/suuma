@@ -251,6 +251,10 @@ input:focus {
   border-radius: 12px;
 }
 
+.entry-row--list {
+  grid-template-columns: repeat(5, 1fr);
+}
+
 .entry-row input[type="number"] {
   text-align: right;
 }
@@ -368,4 +372,8 @@ input:focus {
     order: 2;
     justify-self: end;
   }
+}
+
+.text-right {
+  text-align: right;
 }

@@ -24,6 +24,24 @@
   </head>
 
   <body data-controller="theme-toggle" data-theme="light">
-    <%= yield %>
+    <header class="top-nav">
+      <div class="nav-left">
+        <%= link_to t("layouts.application.app_name"), root_path, class: "brand" %>
+        <nav class="nav-links">
+          <%= link_to t("nav.vouchers.index"), vouchers_path, class: "nav-link" %>
+          <%= link_to t("nav.vouchers.new"), new_voucher_path, class: "nav-link" %>
+          <%= link_to t("nav.bank_imports"), new_bank_import_path, class: "nav-link" %>
+        </nav>
+      </div>
+      <div class="nav-actions">
+        <button type="button" class="btn btn--ghost" data-action="click->theme-toggle#toggle" data-theme-toggle-target="button">
+          <%= t("nav.theme.to_dark") %>
+        </button>
+      </div>
+    </header>
+
+    <main class="main-area">
+      <%= yield %>
+    </main>
   </body>
 </html>

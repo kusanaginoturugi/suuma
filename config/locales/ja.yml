@@ -2,6 +2,14 @@ ja:
   layouts:
     application:
       app_name: "Summa"
+  nav:
+    vouchers:
+      index: "伝票一覧"
+      new: "伝票入力"
+    bank_imports: "CSV取込"
+    theme:
+      to_light: "ライトモードに切替"
+      to_dark: "ダークモードに切替"
   vouchers:
     flash:
       saved: "振替伝票を保存しました"

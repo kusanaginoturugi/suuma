@@ -8,10 +8,6 @@
     <div class="pill-row">
       <span class="pill"><%= t(".pill_draft") %></span>
       <span class="pill pill--accent"><%= t(".pill_balance") %></span>
-      <button type="button" class="pill pill--ghost" data-action="click->theme-toggle#toggle" data-theme-toggle-target="button"
-        data-theme-toggle-light-label="<%= t('.theme.to_dark') %>" data-theme-toggle-dark-label="<%= t('.theme.to_light') %>">
-        <%= t(".theme.to_light") %>
-      </button>
       <%= link_to t("bank_imports.shared.import_button"), new_bank_import_path, class: "pill pill--ghost" %>
     </div>
   </div>

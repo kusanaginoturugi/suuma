@@ -15,4 +15,10 @@
   <% end %>
 
   <%= render "form", voucher: @voucher, accounts: @accounts, submit_label: t("vouchers.edit.submit", default: "更新") %>
+
+  <div class="actions" style="margin-top: 12px;">
+    <%= button_to t("vouchers.edit.delete", default: "削除"), voucher_path(@voucher), method: :delete,
+          data: { turbo_confirm: t("vouchers.edit.delete_confirm", default: "本当に削除しますか？") },
+          class: "btn btn--danger" %>
+  </div>
 </div>

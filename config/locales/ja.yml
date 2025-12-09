@@ -14,6 +14,8 @@ ja:
   vouchers:
     flash:
       saved: "振替伝票を保存しました"
+      updated: "振替伝票を更新しました"
+      deleted: "振替伝票を削除しました"
     index:
       title: "振替伝票一覧 | Summa"
       heading: "振替伝票一覧"
@@ -63,6 +65,13 @@ ja:
         warn: "調整してください"
       submit: "保存"
       submit_note: "保存してデータベースに登録します。借貸バランスが合わない場合はエラーになります。"
+    edit:
+      title: "振替伝票の編集 | Summa"
+      heading: "振替伝票の編集"
+      sub: "保存済み伝票の明細を修正します。"
+      submit: "更新"
+      delete: "削除"
+      delete_confirm: "本当に削除しますか？"
   bank_imports:
     shared:
       import_button: "CSV取込"

@@ -1,5 +1,5 @@
 class VouchersController < ApplicationController
-  before_action :set_voucher, only: %i[edit update]
+  before_action :set_voucher, only: %i[edit update destroy]
 
   def index
     @vouchers = Voucher.includes(:voucher_lines).order(recorded_on: :desc, created_at: :desc)
@@ -36,6 +36,11 @@ class VouchersController < ApplicationController
       flash.now[:alert] = @voucher.errors.full_messages.join(" / ")
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  def destroy
+    @voucher.destroy!
+    redirect_to vouchers_path, notice: t("vouchers.flash.deleted", default: "振替伝票を削除しました")
   end
 
   private

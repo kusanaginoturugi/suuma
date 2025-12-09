@@ -39,14 +39,14 @@ class BankCsvImportForm
     ActiveRecord::Base.transaction do
       persist_setting if save_setting?
 
-      tempfile = file.tempfile
-      encoding = detect_encoding(tempfile)
-      tempfile.rewind
+      io = upload_io
+      encoding = detect_encoding(io)
+      io.rewind
 
       options = { headers: has_header?, encoding: "#{encoding}:UTF-8" }
       line_no = has_header? ? 2 : 1
 
-      CSV.foreach(tempfile, **options) do |row|
+      CSV.new(io, **options).each do |row|
         begin
           amount_in = decimal(cell(row, deposit_column))
           amount_out = decimal(cell(row, withdrawal_column))
@@ -232,5 +232,13 @@ class BankCsvImportForm
     str = str.dup
     str.force_encoding(Encoding::UTF_8) if str.encoding == Encoding::ASCII_8BIT
     str.encode("UTF-8", invalid: :replace, undef: :replace, replace: "")
+  end
+
+  def upload_io
+    return file.tempfile if file.respond_to?(:tempfile)
+    return file.to_io if file.respond_to?(:to_io)
+    return file if file.respond_to?(:read)
+
+    raise ArgumentError, "file is required"
   end
 end

@@ -38,12 +38,12 @@
         <% render_nodes = lambda do |parent_code, level|
              (children[parent_code] || []).each do |acc|
         %>
-          <div class="entry-row entry-row--list" style="grid-template-columns: 1fr 2fr 1fr 120px 120px;">
-            <span><%= acc.code %></span>
-            <span style="padding-left: <%= level * 16 %>px;"><%= acc.name %></span>
-            <span><%= t("accounts.categories.#{acc.category}") %></span>
-            <span class="text-right">
-              <%= link_to t("accounts.index.edit"), edit_account_path(acc), class: "btn btn--ghost", style: "padding:6px 10px;" %>
+        <div class="entry-row entry-row--list cat-<%= cat %>" style="grid-template-columns: 1fr 2fr 1fr 120px 120px;">
+          <span><%= acc.code %></span>
+          <span style="padding-left: <%= level * 16 %>px;"><%= acc.name %></span>
+          <span><%= t("accounts.categories.#{acc.category}") %></span>
+          <span class="text-right">
+            <%= link_to t("accounts.index.edit"), edit_account_path(acc), class: "btn btn--ghost", style: "padding:6px 10px;" %>
             </span>
             <span class="text-right">
               <%= link_to t("accounts.index.entries"), entries_account_path(acc), class: "btn btn--ghost", style: "padding:6px 10px;" %>

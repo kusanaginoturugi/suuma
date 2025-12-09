@@ -174,8 +174,6 @@ class BankCsvImportForm
     false
   end
 
-  public :parse_only
-
   def create_voucher(recorded_on, description, amount, direction)
     voucher = Voucher.new(recorded_on: recorded_on, description: description)
 

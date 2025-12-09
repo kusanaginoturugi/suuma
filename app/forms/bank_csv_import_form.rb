@@ -36,6 +36,7 @@ class BankCsvImportForm
 
     @created_count = 0
     @skipped_rows = []
+    retried_encoding = false
     ActiveRecord::Base.transaction do
       persist_setting if save_setting?
 
@@ -46,37 +47,46 @@ class BankCsvImportForm
       options = { headers: has_header?, encoding: "#{encoding}:UTF-8" }
       line_no = has_header? ? 2 : 1
 
-      CSV.new(io, **options).each do |row|
-        begin
-          amount_in = decimal(cell(row, deposit_column))
-          amount_out = decimal(cell(row, withdrawal_column))
-          if amount_in.zero? && amount_out.zero?
-            skip_row(line_no, :no_amount)
-            next
-          end
+      begin
+        CSV.new(io, **options).each do |row|
+          begin
+            amount_in = decimal(cell(row, deposit_column))
+            amount_out = decimal(cell(row, withdrawal_column))
+            if amount_in.zero? && amount_out.zero?
+              skip_row(line_no, :no_amount)
+              next
+            end
 
-          recorded_on = parse_date(cell(row, date_column))
-          if recorded_on.nil?
-            skip_row(line_no, :invalid_date)
-            next
-          end
+            recorded_on = parse_date(cell(row, date_column))
+            if recorded_on.nil?
+              skip_row(line_no, :invalid_date)
+              next
+            end
 
-          description = description_text(row)
-          if description.blank?
-            skip_row(line_no, :blank_description)
-            next
-          end
+            description = description_text(row)
+            if description.blank?
+              skip_row(line_no, :blank_description)
+              next
+            end
 
-          if amount_in.positive?
-            create_voucher(recorded_on, description, amount_in, :deposit)
-          elsif amount_out.positive?
-            create_voucher(recorded_on, description, amount_out, :withdrawal)
+            if amount_in.positive?
+              create_voucher(recorded_on, description, amount_in, :deposit)
+            elsif amount_out.positive?
+              create_voucher(recorded_on, description, amount_out, :withdrawal)
+            end
+          rescue StandardError => e
+            skip_row(line_no, e.message)
+          ensure
+            line_no += 1
           end
-        rescue StandardError => e
-          skip_row(line_no, e.message)
-        ensure
-          line_no += 1
         end
+      rescue Encoding::InvalidByteSequenceError, Encoding::UndefinedConversionError
+        raise if retried_encoding
+        retried_encoding = true
+        encoding = "CP932"
+        options[:encoding] = "CP932:UTF-8"
+        io.rewind
+        retry
       end
     end
 
@@ -110,7 +120,6 @@ class BankCsvImportForm
     end
 
     utf8_sample = sample.dup.force_encoding("UTF-8")
-    utf8_sample.encode!("UTF-8", invalid: :replace, undef: :replace, replace: "")
     return "UTF-8" if utf8_sample.valid_encoding?
 
     "CP932"

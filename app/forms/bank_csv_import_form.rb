@@ -168,13 +168,29 @@ class BankCsvImportForm
   end
 
   def parse_date(value)
-    Date.parse(value.to_s)
+    str = value.to_s.strip
+    return nil if str.blank?
+
+    if str.match?(/\A\d{4}年\d{1,2}月\d{1,2}日\z/)
+      return Date.strptime(str, "%Y年%m月%d日")
+    elsif str.match?(/\A\d{1,2}月\d{1,2}日\z/)
+      year = Date.current.year
+      return Date.strptime("#{year}年#{str}", "%Y年%m月%d日")
+    elsif str.match?(/\A\d{4}\/\d{1,2}\/\d{1,2}\z/)
+      return Date.strptime(str, "%Y/%m/%d")
+    end
+
+    Date.parse(str)
   rescue ArgumentError
-    raise I18n.t("bank_imports.errors.invalid_date", value: value)
+    nil
   end
 
   def decimal(value)
-    BigDecimal(value.to_s.gsub(/[, ]/, ""))
+    str = value.to_s
+    negative = str.include?("▲") || str.include?("(") || str.start_with?("-")
+    cleaned = str.tr("¥￥,\\", "").gsub(/[()\s]/, "")
+    num = BigDecimal(cleaned.presence || "0")
+    negative ? -num : num
   rescue ArgumentError, TypeError
     0.to_d
   end

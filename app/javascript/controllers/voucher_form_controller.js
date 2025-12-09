@@ -51,7 +51,9 @@ export default class extends Controller {
 
   updateBadge(difference) {
     const balanced = Math.abs(difference) < 0.005
-    this.balanceBadgeTarget.textContent = balanced ? "バランスOK" : "調整してください"
+    const ok = this.balanceBadgeTarget.dataset.badgeOkText || "バランスOK"
+    const warn = this.balanceBadgeTarget.dataset.badgeWarnText || "調整してください"
+    this.balanceBadgeTarget.textContent = balanced ? ok : warn
     this.balanceBadgeTarget.classList.toggle("badge--ok", balanced)
     this.balanceBadgeTarget.classList.toggle("badge--warn", !balanced)
   }

@@ -27,7 +27,9 @@ export default class extends Controller {
 
   updateButtonLabel(theme) {
     if (!this.hasButtonTarget) return
-    this.buttonTarget.textContent = theme === THEMES.light ? "ダークモードに切替" : "ライトモードに切替"
+    const toDark = this.buttonTarget.dataset.themeToggleLightLabel || "ダークモードに切替"
+    const toLight = this.buttonTarget.dataset.themeToggleDarkLabel || "ライトモードに切替"
+    this.buttonTarget.textContent = theme === THEMES.light ? toDark : toLight
   }
 
   validTheme(value) {

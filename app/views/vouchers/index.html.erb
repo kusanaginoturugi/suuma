@@ -1,13 +1,13 @@
-<% content_for :title, "振替伝票一覧 | Summa" %>
+<% content_for :title, t(".title") %>
 
 <div class="page-shell">
   <div class="hero">
     <p class="eyebrow">DOUBLE-ENTRY</p>
-    <h1>振替伝票一覧</h1>
-    <p class="sub">保存済みの伝票を確認できます。新規入力は右上のボタンから。</p>
+    <h1><%= t(".heading") %></h1>
+    <p class="sub"><%= t(".sub") %></p>
     <div class="pill-row">
-      <span class="pill">保存済み <%= @vouchers.size %> 件</span>
-      <%= link_to "新規入力", new_voucher_path, class: "pill pill--accent" %>
+      <span class="pill"><%= t(".saved_count", count: @vouchers.size) %></span>
+      <%= link_to t(".new_button"), new_voucher_path, class: "pill pill--accent" %>
     </div>
   </div>
 
@@ -20,16 +20,16 @@
 
   <% if @vouchers.empty? %>
     <section class="card">
-      <p class="sub">まだ振替伝票がありません。<%= link_to "新規入力", new_voucher_path %> から作成してください。</p>
+      <p class="sub"><%= t(".empty") %> <%= link_to t(".new_button"), new_voucher_path %></p>
     </section>
   <% else %>
     <section class="card card--stacked">
       <div class="entry-head">
-        <span>起票日</span>
-        <span>伝票番号</span>
-        <span>摘要</span>
-        <span>借方合計</span>
-        <span>貸方合計</span>
+        <span><%= t(".th.recorded_on") %></span>
+        <span><%= t(".th.voucher_number") %></span>
+        <span><%= t(".th.description") %></span>
+        <span><%= t(".th.debit") %></span>
+        <span><%= t(".th.credit") %></span>
       </div>
       <div class="entry-list">
         <% @vouchers.each do |voucher| %>

@@ -14,7 +14,7 @@ class VouchersController < ApplicationController
     load_accounts
 
     if @voucher.save
-      redirect_to vouchers_path, notice: "振替伝票を保存しました"
+      redirect_to vouchers_path, notice: t("vouchers.flash.saved")
     else
       @voucher.voucher_lines.build if @voucher.voucher_lines.empty?
       flash.now[:alert] = @voucher.errors.full_messages.join(" / ")

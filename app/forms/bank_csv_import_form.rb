@@ -58,21 +58,11 @@ class BankCsvImportForm
     false
   end
 
-  # Parse only, do not persist vouchers
-  def parse_only
-    @created_count = 0
-    @skipped_rows = []
-    @parsed_rows = build_rows
-    errors.add(:base, I18n.t("bank_imports.errors.no_rows")) if @parsed_rows.empty?
-    errors.empty?
-  rescue StandardError => e
-    errors.add(:base, e.message)
-    false
-  end
-
   def rows_json
     (parsed_rows || []).to_json
   end
+
+  public :parse_only
 
   private
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_08_020000) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_08_023000) do
   create_table "accounts", force: :cascade do |t|
     t.string "category", null: false
     t.string "code", null: false
@@ -28,6 +28,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_020000) do
     t.string "deposit_column", null: false
     t.string "deposit_counter_code", null: false
     t.string "description_column", null: false
+    t.boolean "has_header", default: true, null: false
     t.string "name", null: false
     t.datetime "updated_at", null: false
     t.string "withdrawal_column", null: false

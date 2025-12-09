@@ -12,11 +12,12 @@ class BankCsvImportForm
   attribute :description_column, :string, default: "摘要"
   attribute :deposit_column, :string, default: "入金額"
   attribute :withdrawal_column, :string, default: "出金額"
+  attribute :has_header, :boolean, default: true
   attribute :setting_id, :integer
   attribute :setting_name, :string
   attribute :save_setting, :boolean, default: false
 
-  attr_reader :created_count
+  attr_reader :created_count, :skipped_rows
 
   validates :file, presence: true
   validates :bank_account_code, :deposit_counter_code, :withdrawal_counter_code, presence: true
@@ -26,6 +27,7 @@ class BankCsvImportForm
     return false unless valid?
 
     @created_count = 0
+    @skipped_rows = []
     ActiveRecord::Base.transaction do
       persist_setting if save_setting?
 
@@ -33,22 +35,45 @@ class BankCsvImportForm
       encoding = detect_encoding(tempfile)
       tempfile.rewind
 
-      CSV.foreach(tempfile, headers: true, encoding: "#{encoding}:UTF-8") do |row|
-        amount_in = decimal(row[deposit_column])
-        amount_out = decimal(row[withdrawal_column])
-        next if amount_in.zero? && amount_out.zero?
+      options = { headers: has_header?, encoding: "#{encoding}:UTF-8" }
+      line_no = has_header? ? 2 : 1
 
-        recorded_on = parse_date(row[date_column])
-        description = row[description_column].to_s.strip
-        if amount_in.positive?
-          create_voucher(recorded_on, description, amount_in, :deposit)
-        elsif amount_out.positive?
-          create_voucher(recorded_on, description, amount_out, :withdrawal)
+      CSV.foreach(tempfile, **options) do |row|
+        begin
+          amount_in = decimal(cell(row, deposit_column))
+          amount_out = decimal(cell(row, withdrawal_column))
+          if amount_in.zero? && amount_out.zero?
+            skip_row(line_no, :no_amount)
+            next
+          end
+
+          recorded_on = parse_date(cell(row, date_column))
+          if recorded_on.nil?
+            skip_row(line_no, :invalid_date)
+            next
+          end
+
+          description = cell(row, description_column).to_s.strip
+          if description.blank?
+            skip_row(line_no, :blank_description)
+            next
+          end
+
+          if amount_in.positive?
+            create_voucher(recorded_on, description, amount_in, :deposit)
+          elsif amount_out.positive?
+            create_voucher(recorded_on, description, amount_out, :withdrawal)
+          end
+        rescue StandardError => e
+          skip_row(line_no, e.message)
+        ensure
+          line_no += 1
         end
       end
     end
 
     errors.add(:base, I18n.t("bank_imports.errors.no_rows")) if created_count.zero?
+    log_skipped_rows if skipped_rows.present?
     errors.empty?
   rescue StandardError => e
     errors.add(:base, e.message)
@@ -94,9 +119,37 @@ class BankCsvImportForm
       date_column: date_column,
       description_column: description_column,
       deposit_column: deposit_column,
-      withdrawal_column: withdrawal_column
+      withdrawal_column: withdrawal_column,
+      has_header: has_header
     )
     setting.save!
+  end
+
+  def cell(row, key)
+    # key: column name or 1-based index (String/Integer)
+    if has_header?
+      return row[key] unless numeric?(key)
+      row[numeric_index(key)]
+    else
+      row[numeric_index(key)]
+    end
+  end
+
+  def numeric?(value)
+    value.to_s.match?(/\A\d+\z/)
+  end
+
+  def numeric_index(value)
+    value.to_i - 1
+  end
+
+  def skip_row(line_no, reason)
+    @skipped_rows << { line: line_no, reason: reason.to_s }
+  end
+
+  def log_skipped_rows
+    msgs = skipped_rows.map { |r| "line #{r[:line]}: #{r[:reason]}" }.join(", ")
+    Rails.logger.info("[BankImport] skipped rows: #{msgs}")
   end
 
   def create_voucher(recorded_on, description, amount, direction)

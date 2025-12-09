@@ -63,8 +63,10 @@ ja:
   bank_imports:
     shared:
       import_button: "CSV取込"
+      default_setting_name: "未指定の銀行"
     flash:
       imported: "%{count}件取り込みました"
+      skipped: "（%{count}行をスキップ）"
     errors:
       account_missing: "科目コード%{code}が科目表に存在しません"
       invalid_date: "日付の解釈に失敗しました（値: %{value}）"
@@ -80,16 +82,17 @@ ja:
       setting_name_placeholder: "例）三井住友ビジネスカード"
       save_setting: "この設定を保存/上書きする"
       file: "CSVファイル"
-      file_hint: "ヘッダー付きCSVをアップロードしてください（文字コードUTF-8/BOM付き可）"
+      file_hint: "ヘッダー無しのCSVでも可（UTF-8 / CP932 自動判別）"
+      has_header: "1行目をヘッダーとして扱う"
+      has_header_hint: "オフにすると列番号指定（1始まり）で読み込みます"
       bank_account_code: "銀行口座の科目コード（借方/貸方の片側）"
       deposit_counter_code: "入金時の相手科目コード（貸方）"
       withdrawal_counter_code: "出金時の相手科目コード（借方）"
       mapping_title: "列名マッピング"
-      date_column: "日付列名"
-      description_column: "摘要列名"
-      deposit_column: "入金額列名"
-      withdrawal_column: "出金額列名"
+      date_column: "日付列（列名または番号）"
+      description_column: "摘要列（列名または番号）"
+      deposit_column: "入金額列（列名または番号）"
+      withdrawal_column: "出金額列（列名または番号）"
+      column_hint: "ヘッダー無しなら列番号を入力（1始まり）、ヘッダー有りなら列名か番号どちらでも可"
       submit: "取り込む"
       submit_note: "入金は銀行を借方、出金は銀行を貸方として2行仕訳を自動生成します。"
-    shared:
-      default_setting_name: "未指定の銀行"

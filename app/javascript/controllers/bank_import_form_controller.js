@@ -26,5 +26,10 @@ export default class extends Controller {
     this.descriptionColumnTarget.value = payload.description_column || ""
     this.depositColumnTarget.value = payload.deposit_column || ""
     this.withdrawalColumnTarget.value = payload.withdrawal_column || ""
+
+    const hasHeaderCheckbox = this.element.querySelector('input[name="bank_csv_import_form[has_header]"]')
+    if (hasHeaderCheckbox && Object.prototype.hasOwnProperty.call(payload, "has_header")) {
+      hasHeaderCheckbox.checked = payload.has_header
+    }
   }
 }

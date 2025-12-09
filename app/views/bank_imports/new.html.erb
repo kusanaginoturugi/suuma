@@ -24,7 +24,7 @@
         <select name="bank_csv_import_form[setting_id]" data-bank-import-form-target="settingSelect" data-action="change->bank-import-form#load">
           <option value=""><%= t(".setting_placeholder") %></option>
           <% @settings.each do |setting| %>
-            <option value="<%= setting.id %>" data-mapping="<%= setting.slice(:bank_account_code, :deposit_counter_code, :withdrawal_counter_code, :date_column, :description_column, :deposit_column, :withdrawal_column).to_json %>">
+            <option value="<%= setting.id %>" data-mapping="<%= setting.slice(:bank_account_code, :deposit_counter_code, :withdrawal_counter_code, :date_column, :description_column, :deposit_column, :withdrawal_column, :has_header).to_json %>">
               <%= setting.name %>
             </option>
           <% end %>
@@ -37,6 +37,13 @@
         <%= f.label :file, t(".file") %>
         <%= f.file_field :file, required: true, accept: ".csv" %>
         <p class="sub"><%= t(".file_hint") %></p>
+      </div>
+
+      <div class="field">
+        <label>
+          <%= f.check_box :has_header %> <%= t(".has_header") %>
+        </label>
+        <p class="sub"><%= t(".has_header_hint") %></p>
       </div>
 
       <div class="field">
@@ -60,6 +67,7 @@
       <div class="field">
         <%= f.label :date_column, t(".date_column") %>
         <%= f.text_field :date_column, data: { "bank-import-form-target": "dateColumn" } %>
+        <p class="sub"><%= t(".column_hint") %></p>
       </div>
       <div class="field">
         <%= f.label :description_column, t(".description_column") %>

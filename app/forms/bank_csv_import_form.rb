@@ -1,4 +1,5 @@
 require "csv"
+require "nkf"
 
 class BankCsvImportForm
   include ActiveModel::Model
@@ -24,7 +25,11 @@ class BankCsvImportForm
 
     @created_count = 0
     ActiveRecord::Base.transaction do
-      CSV.foreach(file.tempfile, headers: true, encoding: "bom|utf-8") do |row|
+      tempfile = file.tempfile
+      encoding = detect_encoding(tempfile)
+      tempfile.rewind
+
+      CSV.foreach(tempfile, headers: true, encoding: "#{encoding}:UTF-8") do |row|
         amount_in = decimal(row[deposit_column])
         amount_out = decimal(row[withdrawal_column])
         next if amount_in.zero? && amount_out.zero?
@@ -53,6 +58,24 @@ class BankCsvImportForm
       code = public_send(key)
       errors.add(key, I18n.t("bank_imports.errors.account_missing", code: code)) if code.present? && Account.find_by(code: code).nil?
     end
+  end
+
+  def detect_encoding(io)
+    io.rewind
+    sample = io.read(4000) || ""
+    return "UTF-8" if sample.start_with?("\uFEFF")
+
+    guessed = NKF.guess(sample)
+    case guessed
+    when Encoding::Shift_JIS, Encoding::Windows_31J, Encoding::CP932
+      "CP932"
+    when Encoding::UTF_8
+      "UTF-8"
+    else
+      "UTF-8"
+    end
+  ensure
+    io.rewind
   end
 
   def create_voucher(recorded_on, description, amount, direction)

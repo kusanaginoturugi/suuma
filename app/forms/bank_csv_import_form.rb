@@ -1,5 +1,4 @@
 require "csv"
-require "nkf"
 
 class BankCsvImportForm
   include ActiveModel::Model
@@ -70,15 +69,10 @@ class BankCsvImportForm
     sample = io.read(4000) || ""
     return "UTF-8" if sample.start_with?("\uFEFF")
 
-    guessed = NKF.guess(sample)
-    case guessed
-    when Encoding::Shift_JIS, Encoding::Windows_31J, Encoding::CP932
-      "CP932"
-    when Encoding::UTF_8
-      "UTF-8"
-    else
-      "UTF-8"
-    end
+    utf8_sample = sample.dup.force_encoding("UTF-8")
+    return "UTF-8" if utf8_sample.valid_encoding?
+
+    "CP932"
   ensure
     io.rewind
   end

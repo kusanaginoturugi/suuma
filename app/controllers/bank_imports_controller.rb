@@ -15,7 +15,6 @@ class BankImportsController < ApplicationController
     @settings = BankImportSetting.order(:name)
     @form = BankCsvImportForm.new(import_params)
 
-        debugger
     if params[:preview].present?
       if @form.parse_only
         render :preview, status: :ok

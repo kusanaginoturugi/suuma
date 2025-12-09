@@ -55,6 +55,7 @@ accounts = [
   ["515", "修繕費", :expense],
   ["516", "新聞図書費", :expense],
   ["520", "雑費", :expense],
+  ["999", "貸借不一致", :expense],
 ]
 
 accounts.each do |code, name, category, parent_code|

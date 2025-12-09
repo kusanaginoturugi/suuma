@@ -45,8 +45,8 @@ class BankCsvImportForm
     ActiveRecord::Base.transaction do
       persist_setting if save_setting?
       @parsed_rows.each do |row|
-        create_voucher(row[:date], row[:description], row[:deposit].to_d, :deposit) if row[:deposit].to_d.positive?
-        create_voucher(row[:date], row[:description], row[:withdrawal].to_d, :withdrawal) if row[:withdrawal].to_d.positive?
+        create_voucher(row[:date], row[:description], row[:deposit].to_d, :deposit, row[:counter_code]) if row[:deposit].to_d.positive?
+        create_voucher(row[:date], row[:description], row[:withdrawal].to_d, :withdrawal, row[:counter_code]) if row[:withdrawal].to_d.positive?
       end
     end
 
@@ -174,14 +174,14 @@ class BankCsvImportForm
     false
   end
 
-  def create_voucher(recorded_on, description, amount, direction)
+  def create_voucher(recorded_on, description, amount, direction, counter_code)
     voucher = Voucher.new(recorded_on: recorded_on, description: description)
 
     if direction == :deposit
       voucher.voucher_lines.build(account_code: bank_account_code, debit_amount: amount, credit_amount: 0)
-      voucher.voucher_lines.build(account_code: deposit_counter_code, debit_amount: 0, credit_amount: amount)
+      voucher.voucher_lines.build(account_code: counter_code || deposit_counter_code, debit_amount: 0, credit_amount: amount)
     else
-      voucher.voucher_lines.build(account_code: withdrawal_counter_code, debit_amount: amount, credit_amount: 0)
+      voucher.voucher_lines.build(account_code: counter_code || withdrawal_counter_code, debit_amount: amount, credit_amount: 0)
       voucher.voucher_lines.build(account_code: bank_account_code, debit_amount: 0, credit_amount: amount)
     end
 
@@ -266,13 +266,21 @@ class BankCsvImportForm
 
         description = description_text(row)
 
-        parsed << { date: date, description: description, deposit: deposit, withdrawal: withdrawal }
+        counter_code = rule_account_code(description, deposit: deposit, withdrawal: withdrawal)
+        parsed << { date: date, description: description, deposit: deposit, withdrawal: withdrawal, counter_code: counter_code }
       rescue StandardError => e
         skip_row(line_no, e.message)
       end
     end
 
     parsed
+  end
+
+  def rule_account_code(description, deposit:, withdrawal:)
+    direction = deposit.to_d.positive? ? "deposit" : "withdrawal"
+    rule = ImportRule.match_for(description, direction)
+    return rule.account_code if rule
+    "999"
   end
 
   public :parse_only

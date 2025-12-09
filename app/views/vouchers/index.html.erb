@@ -35,18 +35,20 @@
       </div>
       <div class="entry-list">
         <% @vouchers.each do |voucher| %>
-          <div class="entry-row entry-row--list" style="grid-template-columns: 1fr 1fr 2fr 1fr 1fr 120px;">
-            <span><%= voucher.recorded_on&.strftime("%Y-%m-%d") %></span>
-            <span><%= voucher.voucher_number %></span>
-            <span><%= voucher.description.presence || "—" %></span>
-            <span class="text-right"><%= number_with_delimiter(voucher.total_debit) %></span>
-            <span class="text-right"><%= number_with_delimiter(voucher.total_credit) %></span>
-            <span class="text-right">
-              <%= link_to t("vouchers.index.edit"), edit_voucher_path(voucher), class: "btn btn--ghost", style: "padding:6px 10px;" %>
-            </span>
-          </div>
-        <% end %>
-      </div>
-    </section>
-  <% end %>
+        <% primary_code = voucher.voucher_lines.first&.account_code %>
+        <% cat_class = "cat-#{Account.find_by(code: primary_code)&.category}" if primary_code.present? %>
+        <div class="entry-row entry-row--list <%= cat_class %>" style="grid-template-columns: 1fr 1fr 2fr 1fr 1fr 120px;">
+          <span><%= voucher.recorded_on&.strftime("%Y-%m-%d") %></span>
+          <span><%= voucher.voucher_number %></span>
+          <span><%= voucher.description.presence || "—" %></span>
+          <span class="text-right"><%= number_with_delimiter(voucher.total_debit) %></span>
+          <span class="text-right"><%= number_with_delimiter(voucher.total_credit) %></span>
+          <span class="text-right">
+            <%= link_to t("vouchers.index.edit"), edit_voucher_path(voucher), class: "btn btn--ghost", style: "padding:6px 10px;" %>
+          </span>
+        </div>
+      <% end %>
+    </div>
+  </section>
+<% end %>
 </div>

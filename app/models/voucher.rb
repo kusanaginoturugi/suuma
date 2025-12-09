@@ -10,6 +10,8 @@ class Voucher < ApplicationRecord
   validate :at_least_one_line
   validate :balanced_entries
 
+  validates :voucher_number, uniqueness: true
+
   def total_debit
     voucher_lines.sum { |line| line.debit_amount.to_d }
   end
@@ -30,7 +32,10 @@ class Voucher < ApplicationRecord
   end
 
   def default_number
-    Date.current.strftime("%Y%m%d-001")
+    date_str = (recorded_on || Date.current).strftime("%Y%m%d")
+    last = Voucher.where("voucher_number LIKE ?", "#{date_str}-%").order(:voucher_number).last
+    next_seq = last&.voucher_number.to_s.split("-").last.to_i + 1
+    format("%<date>s-%<seq>03d", date: date_str, seq: [next_seq, 1].max)
   end
 
   def blank_line?(attrs)

@@ -1,0 +1,75 @@
+<% content_for :title, t(".title") %>
+
+<div class="page-shell">
+  <div class="hero">
+    <p class="eyebrow">IMPORT</p>
+    <h1><%= t(".heading") %></h1>
+    <p class="sub"><%= t(".sub") %></p>
+    <div class="pill-row">
+      <%= link_to t(".back_to_vouchers"), vouchers_path, class: "pill" %>
+    </div>
+  </div>
+
+  <% if flash[:notice] %>
+    <div class="flash flash--notice"><%= flash[:notice] %></div>
+  <% end %>
+  <% if flash[:alert] %>
+    <div class="flash flash--alert"><%= flash[:alert] %></div>
+  <% end %>
+
+  <%= form_with model: @form, url: bank_imports_path, local: true, multipart: true, class: "voucher-form card" do |f| %>
+    <div class="field-grid">
+      <div class="field field--full">
+        <%= f.label :file, t(".file") %>
+        <%= f.file_field :file, required: true, accept: ".csv" %>
+        <p class="sub"><%= t(".file_hint") %></p>
+      </div>
+
+      <div class="field">
+        <%= f.label :bank_account_code, t(".bank_account_code") %>
+        <%= f.text_field :bank_account_code, list: "account-codes", required: true %>
+      </div>
+      <div class="field">
+        <%= f.label :deposit_counter_code, t(".deposit_counter_code") %>
+        <%= f.text_field :deposit_counter_code, list: "account-codes", required: true %>
+      </div>
+      <div class="field">
+        <%= f.label :withdrawal_counter_code, t(".withdrawal_counter_code") %>
+        <%= f.text_field :withdrawal_counter_code, list: "account-codes", required: true %>
+      </div>
+    </div>
+
+    <hr style="border: 1px solid var(--border); border-width: 1px 0 0; margin: 12px 0;">
+
+    <p class="eyebrow"><%= t(".mapping_title") %></p>
+    <div class="field-grid">
+      <div class="field">
+        <%= f.label :date_column, t(".date_column") %>
+        <%= f.text_field :date_column %>
+      </div>
+      <div class="field">
+        <%= f.label :description_column, t(".description_column") %>
+        <%= f.text_field :description_column %>
+      </div>
+      <div class="field">
+        <%= f.label :deposit_column, t(".deposit_column") %>
+        <%= f.text_field :deposit_column %>
+      </div>
+      <div class="field">
+        <%= f.label :withdrawal_column, t(".withdrawal_column") %>
+        <%= f.text_field :withdrawal_column %>
+      </div>
+    </div>
+
+    <datalist id="account-codes">
+      <% @accounts.each do |account| %>
+        <option value="<%= account.code %>"><%= "#{account.code} #{account.name}" %></option>
+      <% end %>
+    </datalist>
+
+    <div class="actions" style="margin-top: 12px;">
+      <button type="submit" class="btn btn--primary"><%= t(".submit") %></button>
+      <p class="sub"><%= t(".submit_note") %></p>
+    </div>
+  <% end %>
+</div>

@@ -8,6 +8,7 @@
     <div class="pill-row">
       <span class="pill"><%= t(".saved_count", count: @vouchers.size) %></span>
       <%= link_to t(".new_button"), new_voucher_path, class: "pill pill--accent" %>
+      <%= link_to t("bank_imports.shared.import_button"), new_bank_import_path, class: "pill pill--ghost" %>
     </div>
   </div>
 

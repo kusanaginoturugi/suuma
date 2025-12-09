@@ -1,0 +1,84 @@
+require "csv"
+
+class BankCsvImportForm
+  include ActiveModel::Model
+  include ActiveModel::Attributes
+
+  attribute :file
+  attribute :bank_account_code, :string
+  attribute :deposit_counter_code, :string
+  attribute :withdrawal_counter_code, :string
+  attribute :date_column, :string, default: "日付"
+  attribute :description_column, :string, default: "摘要"
+  attribute :deposit_column, :string, default: "入金額"
+  attribute :withdrawal_column, :string, default: "出金額"
+
+  attr_reader :created_count
+
+  validates :file, presence: true
+  validates :bank_account_code, :deposit_counter_code, :withdrawal_counter_code, presence: true
+  validate :accounts_exist
+
+  def save
+    return false unless valid?
+
+    @created_count = 0
+    ActiveRecord::Base.transaction do
+      CSV.foreach(file.tempfile, headers: true, encoding: "bom|utf-8") do |row|
+        amount_in = decimal(row[deposit_column])
+        amount_out = decimal(row[withdrawal_column])
+        next if amount_in.zero? && amount_out.zero?
+
+        recorded_on = parse_date(row[date_column])
+        description = row[description_column].to_s.strip
+        if amount_in.positive?
+          create_voucher(recorded_on, description, amount_in, :deposit)
+        elsif amount_out.positive?
+          create_voucher(recorded_on, description, amount_out, :withdrawal)
+        end
+      end
+    end
+
+    errors.add(:base, I18n.t("bank_imports.errors.no_rows")) if created_count.zero?
+    errors.empty?
+  rescue StandardError => e
+    errors.add(:base, e.message)
+    false
+  end
+
+  private
+
+  def accounts_exist
+    %i[bank_account_code deposit_counter_code withdrawal_counter_code].each do |key|
+      code = public_send(key)
+      errors.add(key, I18n.t("bank_imports.errors.account_missing", code: code)) if code.present? && Account.find_by(code: code).nil?
+    end
+  end
+
+  def create_voucher(recorded_on, description, amount, direction)
+    voucher = Voucher.new(recorded_on: recorded_on, description: description)
+
+    if direction == :deposit
+      voucher.voucher_lines.build(account_code: bank_account_code, debit_amount: amount, credit_amount: 0)
+      voucher.voucher_lines.build(account_code: deposit_counter_code, debit_amount: 0, credit_amount: amount)
+    else
+      voucher.voucher_lines.build(account_code: withdrawal_counter_code, debit_amount: amount, credit_amount: 0)
+      voucher.voucher_lines.build(account_code: bank_account_code, debit_amount: 0, credit_amount: amount)
+    end
+
+    voucher.save!
+    @created_count += 1
+  end
+
+  def parse_date(value)
+    Date.parse(value.to_s)
+  rescue ArgumentError
+    raise I18n.t("bank_imports.errors.invalid_date", value: value)
+  end
+
+  def decimal(value)
+    BigDecimal(value.to_s.gsub(/[, ]/, ""))
+  rescue ArgumentError, TypeError
+    0.to_d
+  end
+end

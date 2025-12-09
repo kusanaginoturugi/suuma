@@ -7,4 +7,12 @@ class Account < ApplicationRecord
   validates :code, presence: true, uniqueness: true
   validates :name, presence: true
   validates :category, inclusion: { in: CATEGORIES }
+
+  before_validation :normalize_parent
+
+  private
+
+  def normalize_parent
+    self.parent_code = nil if parent_code.blank?
+  end
 end

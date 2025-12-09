@@ -13,6 +13,9 @@ class BankCsvImportForm
   attribute :description_column, :string, default: "摘要"
   attribute :deposit_column, :string, default: "入金額"
   attribute :withdrawal_column, :string, default: "出金額"
+  attribute :setting_id, :integer
+  attribute :setting_name, :string
+  attribute :save_setting, :boolean, default: false
 
   attr_reader :created_count
 
@@ -25,6 +28,8 @@ class BankCsvImportForm
 
     @created_count = 0
     ActiveRecord::Base.transaction do
+      persist_setting if save_setting?
+
       tempfile = file.tempfile
       encoding = detect_encoding(tempfile)
       tempfile.rewind
@@ -76,6 +81,28 @@ class BankCsvImportForm
     end
   ensure
     io.rewind
+  end
+
+  def save_setting?
+    ActiveModel::Type::Boolean.new.cast(save_setting) || setting_name.present?
+  end
+
+  def persist_setting
+    setting = if setting_id.present?
+                BankImportSetting.find_by(id: setting_id)
+              end
+    setting ||= BankImportSetting.find_or_initialize_by(name: setting_name.presence || I18n.t("bank_imports.shared.default_setting_name"))
+
+    setting.assign_attributes(
+      bank_account_code: bank_account_code,
+      deposit_counter_code: deposit_counter_code,
+      withdrawal_counter_code: withdrawal_counter_code,
+      date_column: date_column,
+      description_column: description_column,
+      deposit_column: deposit_column,
+      withdrawal_column: withdrawal_column
+    )
+    setting.save!
   end
 
   def create_voucher(recorded_on, description, amount, direction)

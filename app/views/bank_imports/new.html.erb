@@ -17,7 +17,21 @@
     <div class="flash flash--alert"><%= flash[:alert] %></div>
   <% end %>
 
-  <%= form_with model: @form, url: bank_imports_path, local: true, multipart: true, class: "voucher-form card" do |f| %>
+  <%= form_with model: @form, url: bank_imports_path, local: true, multipart: true, class: "voucher-form card", data: { controller: "bank-import-form" } do |f| %>
+    <div class="field-grid">
+      <div class="field field--full">
+        <%= f.label :setting_id, t(".setting_id") %>
+        <select name="bank_csv_import_form[setting_id]" data-bank-import-form-target="settingSelect" data-action="change->bank-import-form#load">
+          <option value=""><%= t(".setting_placeholder") %></option>
+          <% @settings.each do |setting| %>
+            <option value="<%= setting.id %>" data-mapping="<%= setting.slice(:bank_account_code, :deposit_counter_code, :withdrawal_counter_code, :date_column, :description_column, :deposit_column, :withdrawal_column).to_json %>">
+              <%= setting.name %>
+            </option>
+          <% end %>
+        </select>
+      </div>
+    </div>
+
     <div class="field-grid">
       <div class="field field--full">
         <%= f.label :file, t(".file") %>
@@ -27,15 +41,15 @@
 
       <div class="field">
         <%= f.label :bank_account_code, t(".bank_account_code") %>
-        <%= f.text_field :bank_account_code, list: "account-codes", required: true %>
+        <%= f.text_field :bank_account_code, list: "account-codes", required: true, data: { "bank-import-form-target": "bankAccountCode" } %>
       </div>
       <div class="field">
         <%= f.label :deposit_counter_code, t(".deposit_counter_code") %>
-        <%= f.text_field :deposit_counter_code, list: "account-codes", required: true %>
+        <%= f.text_field :deposit_counter_code, list: "account-codes", required: true, data: { "bank-import-form-target": "depositCounterCode" } %>
       </div>
       <div class="field">
         <%= f.label :withdrawal_counter_code, t(".withdrawal_counter_code") %>
-        <%= f.text_field :withdrawal_counter_code, list: "account-codes", required: true %>
+        <%= f.text_field :withdrawal_counter_code, list: "account-codes", required: true, data: { "bank-import-form-target": "withdrawalCounterCode" } %>
       </div>
     </div>
 
@@ -45,19 +59,19 @@
     <div class="field-grid">
       <div class="field">
         <%= f.label :date_column, t(".date_column") %>
-        <%= f.text_field :date_column %>
+        <%= f.text_field :date_column, data: { "bank-import-form-target": "dateColumn" } %>
       </div>
       <div class="field">
         <%= f.label :description_column, t(".description_column") %>
-        <%= f.text_field :description_column %>
+        <%= f.text_field :description_column, data: { "bank-import-form-target": "descriptionColumn" } %>
       </div>
       <div class="field">
         <%= f.label :deposit_column, t(".deposit_column") %>
-        <%= f.text_field :deposit_column %>
+        <%= f.text_field :deposit_column, data: { "bank-import-form-target": "depositColumn" } %>
       </div>
       <div class="field">
         <%= f.label :withdrawal_column, t(".withdrawal_column") %>
-        <%= f.text_field :withdrawal_column %>
+        <%= f.text_field :withdrawal_column, data: { "bank-import-form-target": "withdrawalColumn" } %>
       </div>
     </div>
 
@@ -68,6 +82,14 @@
     </datalist>
 
     <div class="actions" style="margin-top: 12px;">
+      <div class="field" style="flex: 1;">
+        <%= f.label :setting_name, t(".setting_name") %>
+        <%= f.text_field :setting_name, placeholder: t(".setting_name_placeholder") %>
+        <label style="display:flex; gap:8px; align-items:center; margin-top:6px; color: var(--muted); font-size:13px;">
+          <%= f.check_box :save_setting %>
+          <span><%= t(".save_setting") %></span>
+        </label>
+      </div>
       <button type="submit" class="btn btn--primary"><%= t(".submit") %></button>
       <p class="sub"><%= t(".submit_note") %></p>
     </div>

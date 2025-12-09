@@ -66,6 +66,11 @@ ja:
       heading: "銀行CSV取込"
       sub: "銀行の通帳明細CSVから振替伝票を自動作成します。列名は必要に応じて調整してください。"
       back_to_vouchers: "一覧に戻る"
+      setting_id: "銀行設定を選択"
+      setting_placeholder: "設定を選んで読み込む"
+      setting_name: "設定名を保存"
+      setting_name_placeholder: "例）三井住友ビジネスカード"
+      save_setting: "この設定を保存/上書きする"
       file: "CSVファイル"
       file_hint: "ヘッダー付きCSVをアップロードしてください（文字コードUTF-8/BOM付き可）"
       bank_account_code: "銀行口座の科目コード（借方/貸方の片側）"
@@ -78,3 +83,5 @@ ja:
       withdrawal_column: "出金額列名"
       submit: "取り込む"
       submit_note: "入金は銀行を借方、出金は銀行を貸方として2行仕訳を自動生成します。"
+    shared:
+      default_setting_name: "未指定の銀行"

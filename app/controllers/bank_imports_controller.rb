@@ -1,12 +1,19 @@
 class BankImportsController < ApplicationController
   def new
-    @form = BankCsvImportForm.new(default_params)
     @accounts = Account.order(:code)
+    @settings = BankImportSetting.order(:name)
+    @form = BankCsvImportForm.new(default_params)
+
+    if params[:setting_id].present?
+      setting = @settings.find_by(id: params[:setting_id])
+      @form = BankCsvImportForm.new(default_params.merge(setting_params(setting))) if setting
+    end
   end
 
   def create
-    @form = BankCsvImportForm.new(import_params)
     @accounts = Account.order(:code)
+    @settings = BankImportSetting.order(:name)
+    @form = BankCsvImportForm.new(import_params)
 
     if @form.save
       redirect_to vouchers_path, notice: t("bank_imports.flash.imported", count: @form.created_count)
@@ -21,7 +28,8 @@ class BankImportsController < ApplicationController
   def import_params
     params.require(:bank_csv_import_form).permit(
       :file, :bank_account_code, :deposit_counter_code, :withdrawal_counter_code,
-      :date_column, :description_column, :deposit_column, :withdrawal_column
+      :date_column, :description_column, :deposit_column, :withdrawal_column,
+      :setting_id, :setting_name, :save_setting
     )
   end
 
@@ -35,5 +43,12 @@ class BankImportsController < ApplicationController
       deposit_column: "入金額",
       withdrawal_column: "出金額"
     }
+  end
+
+  def setting_params(setting)
+    setting.slice(
+      :bank_account_code, :deposit_counter_code, :withdrawal_counter_code,
+      :date_column, :description_column, :deposit_column, :withdrawal_column
+    ).merge(setting_id: setting.id, setting_name: setting.name)
   end
 end

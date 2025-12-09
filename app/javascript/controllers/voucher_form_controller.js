@@ -4,14 +4,17 @@ export default class extends Controller {
   static targets = ["rows", "rowTemplate", "totalDebit", "totalCredit", "difference", "balanceBadge"]
 
   connect() {
+    this.nextIndex = parseInt(this.rowsTarget.dataset.nextIndex || this.rowsTarget.children.length, 10)
     this.recalculate()
   }
 
   addRow() {
-    const clone = this.rowTemplateTarget.content.firstElementChild.cloneNode(true)
-    this.rowsTarget.appendChild(clone)
+    const html = this.rowTemplateTarget.innerHTML.replace(/__INDEX__/g, this.nextIndex)
+    this.nextIndex += 1
+    this.rowsTarget.insertAdjacentHTML("beforeend", html)
     this.recalculate()
-    clone.querySelector("input")?.focus()
+    const lastRow = this.rowsTarget.lastElementChild
+    lastRow?.querySelector("input")?.focus()
   }
 
   removeRow(event) {

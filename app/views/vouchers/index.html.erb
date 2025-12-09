@@ -25,19 +25,19 @@
     </section>
   <% else %>
     <section class="card card--stacked">
-      <div class="entry-head">
-        <span><%= t(".th.recorded_on") %></span>
-        <span><%= t(".th.voucher_number") %></span>
-        <span><%= t(".th.description") %></span>
-        <span><%= t(".th.debit") %></span>
-        <span><%= t(".th.credit") %></span>
-        <span></span>
+    <div class="entry-head entry-grid-vouchers">
+      <span><%= t(".th.recorded_on") %></span>
+      <span><%= t(".th.voucher_number") %></span>
+      <span><%= t(".th.description") %></span>
+      <span><%= t(".th.debit") %></span>
+      <span><%= t(".th.credit") %></span>
+      <span></span>
       </div>
       <div class="entry-list">
         <% @vouchers.each do |voucher| %>
         <% primary_code = voucher.voucher_lines.first&.account_code %>
         <% cat_class = "cat-#{Account.find_by(code: primary_code)&.category}" if primary_code.present? %>
-        <div class="entry-row entry-row--list <%= cat_class %>" style="grid-template-columns: 1fr 1fr 2fr 1fr 1fr 120px;">
+        <div class="entry-row entry-row--list entry-grid-vouchers <%= cat_class %>">
           <span><%= voucher.recorded_on&.strftime("%Y-%m-%d") %></span>
           <span><%= voucher.voucher_number %></span>
           <span><%= voucher.description.presence || "—" %></span>

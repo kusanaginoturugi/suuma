@@ -22,7 +22,7 @@
       <%= t("accounts.entries.including", default: "含まれる科目:") %>
       <%= @included_codes.join(", ") %>
     </p>
-    <div class="entry-head">
+    <div class="entry-head entry-grid-account-entries">
       <span><%= t("accounts.entries.th.date") %></span>
       <span><%= t("accounts.entries.th.description") %></span>
       <span><%= t("accounts.entries.th.counterpart") %></span>
@@ -38,7 +38,7 @@
         <% withdrawal = line.credit_amount.to_d %>
         <% balance += deposit - withdrawal %>
         <% counterparts = line.voucher.voucher_lines.reject { |l| l.id == line.id }.map { |l| "#{l.account_code} #{l.account.presence || ''}".strip }.join(" / ") %>
-        <div class="entry-row entry-row--list" style="grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr;">
+        <div class="entry-row entry-row--list entry-grid-account-entries cat-<%= @account.category %>">
           <span><%= line.voucher.recorded_on&.strftime("%Y-%m-%d") %></span>
           <span><%= line.voucher.description.presence || "—" %></span>
           <span><%= counterparts.presence || "—" %></span>

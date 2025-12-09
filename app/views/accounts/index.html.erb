@@ -19,7 +19,7 @@
   <% end %>
 
   <section class="card card--stacked">
-    <div class="entry-head">
+    <div class="entry-head entry-grid-accounts">
       <span><%= t("accounts.index.th.code") %></span>
       <span><%= t("accounts.index.th.name") %></span>
       <span><%= t("accounts.index.th.category") %></span>
@@ -38,7 +38,7 @@
         <% render_nodes = lambda do |parent_code, level|
              (children[parent_code] || []).each do |acc|
         %>
-        <div class="entry-row entry-row--list cat-<%= cat %>" style="grid-template-columns: 1fr 2fr 1fr 120px 120px;">
+        <div class="entry-row entry-row--list entry-grid-accounts cat-<%= cat %>">
           <span><%= acc.code %></span>
           <span style="padding-left: <%= level * 16 %>px;"><%= acc.name %></span>
           <span><%= t("accounts.categories.#{acc.category}") %></span>

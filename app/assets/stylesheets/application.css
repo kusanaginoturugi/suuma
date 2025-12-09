@@ -310,6 +310,18 @@ input:focus {
   grid-template-columns: repeat(5, 1fr);
 }
 
+.entry-grid-accounts {
+  grid-template-columns: 1fr 2fr 1fr 120px 120px;
+}
+
+.entry-grid-vouchers {
+  grid-template-columns: 1fr 1fr 2fr 1fr 1fr 120px;
+}
+
+.entry-grid-account-entries {
+  grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr;
+}
+
 .entry-row--category {
   background: var(--panel-strong);
   border: 1px solid var(--border);

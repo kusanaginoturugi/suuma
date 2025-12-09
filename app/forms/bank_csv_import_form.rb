@@ -175,7 +175,7 @@ class BankCsvImportForm
   end
 
   def skip_row(line_no, reason)
-    @skipped_rows << { line: line_no, reason: reason.to_s }
+    @skipped_rows << { line: line_no, reason: normalize_string(reason) }
   end
 
   def log_skipped_rows

@@ -1,5 +1,13 @@
 require "csv"
 
+# Prefer NKF for encoding detection if available
+begin
+  require "nkf"
+  HAS_NKF = true
+rescue LoadError
+  HAS_NKF = false
+end
+
 class BankCsvImportForm
   include ActiveModel::Model
   include ActiveModel::Attributes
@@ -93,6 +101,12 @@ class BankCsvImportForm
     io.rewind
     sample = io.read(4000) || ""
     return "UTF-8" if sample.start_with?("\uFEFF")
+
+    if HAS_NKF
+      guessed = NKF.guess(sample)
+      return "CP932" if [Encoding::Shift_JIS, Encoding::Windows_31J, Encoding::CP932].include?(guessed)
+      return "UTF-8" if guessed == Encoding::UTF_8
+    end
 
     utf8_sample = sample.dup.force_encoding("UTF-8")
     return "UTF-8" if utf8_sample.valid_encoding?

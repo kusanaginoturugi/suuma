@@ -62,8 +62,6 @@ class BankCsvImportForm
     (parsed_rows || []).to_json
   end
 
-  public :parse_only
-
   private
 
   def accounts_exist
@@ -99,18 +97,6 @@ class BankCsvImportForm
 
   def has_header?
     ActiveModel::Type::Boolean.new.cast(has_header)
-  end
-
-  # Parse only, do not persist vouchers
-  def parse_only
-    @created_count = 0
-    @skipped_rows = []
-    @parsed_rows = build_rows
-    errors.add(:base, I18n.t("bank_imports.errors.no_rows")) if @parsed_rows.empty?
-    errors.empty?
-  rescue StandardError => e
-    errors.add(:base, e.message)
-    false
   end
 
   def persist_setting
@@ -175,6 +161,20 @@ class BankCsvImportForm
     msgs = skipped_rows.map { |r| "line #{r[:line]}: #{r[:reason]}" }.join(", ")
     Rails.logger.info("[BankImport] skipped rows: #{msgs}")
   end
+
+  # Parse only, do not persist vouchers
+  def parse_only
+    @created_count = 0
+    @skipped_rows = []
+    @parsed_rows = build_rows
+    errors.add(:base, I18n.t("bank_imports.errors.no_rows")) if @parsed_rows.empty?
+    errors.empty?
+  rescue StandardError => e
+    errors.add(:base, e.message)
+    false
+  end
+
+  public :parse_only
 
   def create_voucher(recorded_on, description, amount, direction)
     voucher = Voucher.new(recorded_on: recorded_on, description: description)

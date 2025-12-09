@@ -1,0 +1,48 @@
+<% content_for :title, t("accounts.entries.title", name: @account.name, code: @account.code) %>
+
+<div class="page-shell">
+  <div class="hero">
+    <p class="eyebrow">ACCOUNTS</p>
+    <h1><%= t("accounts.entries.heading", name: @account.name, code: @account.code) %></h1>
+    <p class="sub"><%= t("accounts.entries.sub") %></p>
+    <div class="pill-row">
+      <%= link_to t("accounts.entries.back"), accounts_path, class: "pill" %>
+    </div>
+  </div>
+
+  <% if flash[:notice] %>
+    <div class="flash flash--notice"><%= flash[:notice] %></div>
+  <% end %>
+  <% if flash[:alert] %>
+    <div class="flash flash--alert"><%= flash[:alert] %></div>
+  <% end %>
+
+  <section class="card card--stacked">
+    <div class="entry-head">
+      <span><%= t("accounts.entries.th.date") %></span>
+      <span><%= t("accounts.entries.th.description") %></span>
+      <span><%= t("accounts.entries.th.counterpart") %></span>
+      <span><%= t("accounts.entries.th.deposit") %></span>
+      <span><%= t("accounts.entries.th.withdrawal") %></span>
+      <span><%= t("accounts.entries.th.balance") %></span>
+    </div>
+
+    <div class="entry-list">
+      <% balance = 0.to_d %>
+      <% @lines.each do |line| %>
+        <% deposit = line.debit_amount.to_d %>
+        <% withdrawal = line.credit_amount.to_d %>
+        <% balance += deposit - withdrawal %>
+        <% counterparts = line.voucher.voucher_lines.reject { |l| l.id == line.id }.map { |l| "#{l.account_code} #{l.account.presence || ''}".strip }.join(" / ") %>
+        <div class="entry-row entry-row--list" style="grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr;">
+          <span><%= line.voucher.recorded_on&.strftime("%Y-%m-%d") %></span>
+          <span><%= line.voucher.description.presence || "—" %></span>
+          <span><%= counterparts.presence || "—" %></span>
+          <span class="text-right"><%= number_with_delimiter(deposit) %></span>
+          <span class="text-right"><%= number_with_delimiter(withdrawal) %></span>
+          <span class="text-right"><%= number_with_delimiter(balance) %></span>
+        </div>
+      <% end %>
+    </div>
+  </section>
+</div>

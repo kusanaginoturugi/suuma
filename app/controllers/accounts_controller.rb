@@ -33,6 +33,13 @@ class AccountsController < ApplicationController
     end
   end
 
+  def entries
+    @account = Account.find(params[:id])
+    @lines = VoucherLine.includes(:voucher)
+                        .where(account_code: @account.code)
+                        .order("vouchers.recorded_on ASC, vouchers.id ASC, voucher_lines.id ASC")
+  end
+
   private
 
   def set_account

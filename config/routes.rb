@@ -11,7 +11,9 @@ Rails.application.routes.draw do
 
   resources :vouchers, only: %i[index new create edit update destroy]
   resources :bank_imports, only: %i[new create]
-  resources :accounts, only: %i[index new create edit update]
+  resources :accounts, only: %i[index new create edit update] do
+    get :entries, on: :member
+  end
 
   # Defines the root path route ("/")
   root "vouchers#new"

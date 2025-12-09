@@ -112,17 +112,23 @@ class BankCsvImportForm
               end
     setting ||= BankImportSetting.find_or_initialize_by(name: setting_name.presence || I18n.t("bank_imports.shared.default_setting_name"))
 
-    setting.assign_attributes(
+    attrs = {
       bank_account_code: bank_account_code,
       deposit_counter_code: deposit_counter_code,
       withdrawal_counter_code: withdrawal_counter_code,
       date_column: date_column,
       description_column: description_column,
       deposit_column: deposit_column,
-      withdrawal_column: withdrawal_column,
-      has_header: has_header
-    )
+      withdrawal_column: withdrawal_column
+    }
+    attrs[:has_header] = has_header if column_exists?(:bank_import_settings, :has_header)
+
+    setting.assign_attributes(attrs)
     setting.save!
+  end
+
+  def column_exists?(table, column)
+    ActiveRecord::Base.connection.column_exists?(table, column)
   end
 
   def cell(row, key)

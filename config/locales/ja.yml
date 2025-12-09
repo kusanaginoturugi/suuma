@@ -120,6 +120,8 @@ ja:
         description: "摘要"
         deposit: "入金"
         withdrawal: "出金"
+      submit: "プレビュー内容を保存"
+      submit_note: "表示中の行を振替伝票として登録します。"
   accounts:
     categories:
       asset: "資産"

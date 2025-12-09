@@ -91,10 +91,10 @@ ja:
       withdrawal_counter_code: "出金時の相手科目コード（借方）"
       mapping_title: "列名マッピング"
       date_column: "日付列（列名または番号）"
-      description_column: "摘要列（列名または番号）"
+      description_column: "摘要列（列名/番号、複数可）"
       deposit_column: "入金額列（列名または番号）"
       withdrawal_column: "出金額列（列名または番号）"
-      column_hint: "ヘッダー無しなら列番号を入力（1始まり）、ヘッダー有りなら列名か番号どちらでも可"
+      column_hint: "ヘッダー無しなら列番号を入力（1始まり）、ヘッダー有りなら列名か番号どちらでも可。摘要はカンマ・空白区切りで複数指定可"
       submit: "取り込む"
       submit_note: "入金は銀行を借方、出金は銀行を貸方として2行仕訳を自動生成します。"
   accounts:

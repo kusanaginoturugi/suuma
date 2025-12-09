@@ -53,7 +53,7 @@ class BankCsvImportForm
             next
           end
 
-          description = cell(row, description_column).to_s.strip
+          description = description_text(row)
           if description.blank?
             skip_row(line_no, :blank_description)
             next
@@ -137,6 +137,16 @@ class BankCsvImportForm
 
   def numeric?(value)
     value.to_s.match?(/\A\d+\z/)
+  end
+
+  def description_text(row)
+    cols = split_columns(description_column)
+    parts = cols.map { |col| cell(row, col).to_s.strip }.reject(&:blank?)
+    parts.join(" / ")
+  end
+
+  def split_columns(value)
+    value.to_s.split(/[,\s]+/).reject(&:blank?)
   end
 
   def numeric_index(value)

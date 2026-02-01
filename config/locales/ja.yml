@@ -192,6 +192,7 @@ ja:
       sub: "親子構造で科目を確認できます。"
       count: "%{count} 科目"
       new_button: "新規科目を追加"
+      edit: "編集"
       entries: "明細"
       save: "保存"
       delete: "削除"

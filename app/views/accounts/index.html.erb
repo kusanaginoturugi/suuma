@@ -65,6 +65,7 @@
                   </td>
                   <td class="text-end">
                     <div class="d-flex justify-content-end gap-2">
+                      <%= link_to t("accounts.index.edit"), edit_account_path(acc), class: "btn btn-outline-primary btn-sm" %>
                       <%= link_to t("accounts.index.entries"), entries_account_path(acc), class: "btn btn-outline-secondary btn-sm" %>
                       <button type="submit" class="btn btn-sm" style="background:#0d6efd; color:#fff; border-color:#0d6efd;"><%= t("accounts.index.save") %></button>
                       <%= link_to t("accounts.index.delete"), account_path(acc),

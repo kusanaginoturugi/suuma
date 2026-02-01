@@ -121,6 +121,10 @@ ja:
   errors:
     messages:
       blank: "を入力してください"
+  activerecord:
+    errors:
+      messages:
+        record_invalid: "検証に失敗しました: %{errors}"
   bank_imports:
     shared:
       import_button: "CSV取込"
@@ -222,6 +226,7 @@ ja:
     form:
       code: "科目コード"
       name: "科目名"
+      details: "詳細"
       category: "区分"
       parent: "親科目（任意）"
       no_parent: "親なし"

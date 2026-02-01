@@ -12,7 +12,7 @@ class AccountsController < ApplicationController
   def create
     @account = Account.new(account_params)
     if @account.save
-      redirect_to accounts_path, notice: t("accounts.flash.created")
+      redirect_to new_account_path, notice: t("accounts.flash.created")
     else
       load_accounts
       flash.now[:alert] = @account.errors.full_messages.join(" / ")
@@ -77,6 +77,6 @@ class AccountsController < ApplicationController
   end
 
   def account_params
-    params.require(:account).permit(:code, :name, :category, :parent_code)
+    params.require(:account).permit(:code, :name, :details, :category, :parent_code)
   end
 end

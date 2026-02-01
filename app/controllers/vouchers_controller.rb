@@ -6,7 +6,7 @@ class VouchersController < ApplicationController
     @accounts_map = @accounts.pluck(:code, :name).to_h
     @account_code = resolve_account_filter
     @account_codes = expand_account_codes(@account_code)
-    scope = Voucher.includes(:voucher_lines).order(recorded_on: :desc, created_at: :desc)
+    scope = Voucher.includes(:voucher_lines).order(recorded_on: :asc, created_at: :asc)
     if @account_codes.present?
       scope = scope.joins(:voucher_lines).where(voucher_lines: { account_code: @account_codes }).distinct
     end

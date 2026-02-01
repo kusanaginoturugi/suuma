@@ -2,11 +2,15 @@
   <div class="field-grid">
     <div class="field">
       <%= form.label :code, t("accounts.form.code") %>
-      <%= form.text_field :code, required: true %>
+      <%= form.text_field :code, required: true, autofocus: form.object.new_record? %>
     </div>
     <div class="field">
       <%= form.label :name, t("accounts.form.name") %>
       <%= form.text_field :name, required: true %>
+    </div>
+    <div class="field">
+      <%= form.label :details, t("accounts.form.details") %>
+      <%= form.text_area :details, rows: 3 %>
     </div>
     <div class="field">
       <%= form.label :category, t("accounts.form.category") %>

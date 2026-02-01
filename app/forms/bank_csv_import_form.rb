@@ -28,6 +28,8 @@ class BankCsvImportForm
 
   attr_reader :created_count, :skipped_rows, :parsed_rows
 
+  FALLBACK_COUNTER_CODE = "999"
+
   validates :file, presence: true, unless: -> { rows.present? }
   validates :bank_account_code, :deposit_counter_code, :withdrawal_counter_code, presence: true
   validate :accounts_exist
@@ -40,6 +42,8 @@ class BankCsvImportForm
     @parsed_rows = build_rows
     errors.add(:base, I18n.t("bank_imports.errors.no_rows")) if @parsed_rows.empty?
     return false unless errors.empty?
+
+    ensure_fallback_account! if fallback_code_used?
 
     retried_encoding = false
     ActiveRecord::Base.transaction do
@@ -177,12 +181,18 @@ class BankCsvImportForm
   def create_voucher(recorded_on, description, amount, direction, counter_code)
     voucher = Voucher.new(recorded_on: recorded_on, description: description)
 
+    bank_code = bank_account_code.to_s.strip
+    deposit_code = deposit_counter_code.to_s.strip
+    withdrawal_code = withdrawal_counter_code.to_s.strip
+    counter_code = counter_code.to_s.strip
+    counter_code = nil if counter_code.blank?
+
     if direction == :deposit
-      voucher.voucher_lines.build(account_code: bank_account_code, debit_amount: amount, credit_amount: 0)
-      voucher.voucher_lines.build(account_code: counter_code || deposit_counter_code, debit_amount: 0, credit_amount: amount)
+      voucher.voucher_lines.build(account_code: bank_code, debit_amount: amount, credit_amount: 0)
+      voucher.voucher_lines.build(account_code: counter_code || deposit_code, debit_amount: 0, credit_amount: amount)
     else
-      voucher.voucher_lines.build(account_code: counter_code || withdrawal_counter_code, debit_amount: amount, credit_amount: 0)
-      voucher.voucher_lines.build(account_code: bank_account_code, debit_amount: 0, credit_amount: amount)
+      voucher.voucher_lines.build(account_code: counter_code || withdrawal_code, debit_amount: amount, credit_amount: 0)
+      voucher.voucher_lines.build(account_code: bank_code, debit_amount: 0, credit_amount: amount)
     end
 
     voucher.save!
@@ -280,8 +290,23 @@ class BankCsvImportForm
     direction = deposit.to_d.positive? ? "deposit" : "withdrawal"
     rule = ImportRule.match_for(description, direction)
     return rule.account_code if rule
-    "999"
+    FALLBACK_COUNTER_CODE
   end
 
   public :parse_only
+
+  def fallback_code_used?
+    return true if [deposit_counter_code, withdrawal_counter_code].map(&:to_s).include?(FALLBACK_COUNTER_CODE)
+    @parsed_rows.any? { |row| row[:counter_code].to_s == FALLBACK_COUNTER_CODE }
+  end
+
+  def ensure_fallback_account!
+    return if Account.exists?(code: FALLBACK_COUNTER_CODE)
+
+    Account.create!(
+      code: FALLBACK_COUNTER_CODE,
+      name: I18n.t("bank_imports.shared.fallback_account_name", default: "貸借不一致"),
+      category: "expense"
+    )
+  end
 end

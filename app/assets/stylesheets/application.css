@@ -509,6 +509,12 @@ input:focus {
 [data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) {
   background-color: rgba(255, 255, 255, 0.06);
 }
+
+.quick-history-table th,
+.quick-history-table td {
+  padding-left: 14px;
+  padding-right: 14px;
+}
 /* Minimal styles to make the navbar horizontal and tidy */
 
 body {

@@ -4,10 +4,16 @@ export default class extends Controller {
   static targets = ["code", "name"]
   static values = { accountsMap: Object }
 
-  update() {
-    const code = this.codeTarget.value.trim()
-    const name = this.lookup(code)
-    this.nameTarget.textContent = name || ""
+  update(event) {
+    const input = event?.target
+    const code = input ? input.value.trim() : this.codeTarget.value.trim()
+    const name = this.lookup(code) || ""
+    const nameTarget = input?.closest(".input-group")?.querySelector("[data-account-lookup-target='name']")
+    if (nameTarget) {
+      nameTarget.textContent = name
+      return
+    }
+    if (this.hasNameTarget) this.nameTarget.textContent = name
   }
 
   lookup(code) {

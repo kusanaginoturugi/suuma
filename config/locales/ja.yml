@@ -78,6 +78,44 @@ ja:
       submit: "更新"
       delete: "削除"
       delete_confirm: "本当に削除しますか？"
+    quick:
+      title: "簡易振替伝票入力 | Summa"
+      heading: "簡易振替伝票入力"
+      sub: "起票日・科目・相手科目・金額だけで登録できます。"
+      eyebrow: "簡易入力"
+      recorded_on: "起票日"
+      description: "摘要"
+      description_placeholder: "摘要（任意）"
+      account_code: "科目コード（自分）"
+      counter_account_code: "科目コード（相手）"
+      account_code_placeholder: "例）101"
+      counter_account_code_placeholder: "例）401"
+      amount: "金額"
+      direction: "入出金"
+      deposit_button: "入金で保存"
+      withdrawal_button: "出金で保存"
+      history_title: "登録履歴（最新20件）"
+      history_empty: "まだ登録履歴がありません。"
+      history:
+        th:
+          recorded_on: "起票日"
+          description: "摘要"
+          debit_accounts: "借方科目"
+          credit_accounts: "貸方科目"
+          amount: "金額"
+
+  activemodel:
+    attributes:
+      quick_voucher_form:
+        recorded_on: "起票日"
+        account_code: "科目コード（自分）"
+        counter_account_code: "科目コード（相手）"
+        amount: "金額"
+        direction: "入出金"
+
+  errors:
+    messages:
+      blank: "を入力してください"
   bank_imports:
     shared:
       import_button: "CSV取込"

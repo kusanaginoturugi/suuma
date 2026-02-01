@@ -55,6 +55,29 @@ class VouchersController < ApplicationController
     redirect_to vouchers_path, notice: t("vouchers.flash.deleted", default: "振替伝票を削除しました")
   end
 
+  def quick
+    load_accounts
+    prepare_quick_view
+    defaults = quick_defaults
+    @last_direction = session[:quick_voucher_last_direction]
+    @form = QuickVoucherForm.new(defaults.merge(recorded_on: defaults[:recorded_on] || Date.current))
+  end
+
+  def create_quick
+    @form = QuickVoucherForm.new(**quick_params)
+    load_accounts
+
+    if @form.save
+      store_quick_defaults
+      session[:quick_voucher_last_direction] = quick_params[:direction]
+      redirect_to quick_vouchers_path, notice: t("vouchers.flash.saved")
+    else
+      prepare_quick_view
+      flash.now[:alert] = @form.errors.full_messages.join(" / ")
+      render :quick, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def set_voucher
@@ -72,5 +95,30 @@ class VouchersController < ApplicationController
 
   def load_accounts
     @accounts = Account.order(:code)
+  end
+
+  def quick_params
+    params.require(:quick_voucher).permit(:recorded_on, :direction,
+      :account_code_deposit, :counter_account_code_deposit,
+      :account_code_withdrawal, :counter_account_code_withdrawal,
+      :amount_deposit, :amount_withdrawal,
+      :description_deposit, :description_withdrawal)
+  end
+
+  def prepare_quick_view
+    @accounts_map = @accounts.index_by(&:code).transform_values(&:name)
+    @recent_vouchers = Voucher.includes(:voucher_lines).order(created_at: :desc).limit(20)
+  end
+
+  def store_quick_defaults
+    session[:quick_voucher_last] = quick_params.slice(
+      :recorded_on,
+      :account_code_deposit, :counter_account_code_deposit, :description_deposit,
+      :account_code_withdrawal, :counter_account_code_withdrawal, :description_withdrawal
+    ).to_h
+  end
+
+  def quick_defaults
+    (session[:quick_voucher_last] || {}).symbolize_keys
   end
 end

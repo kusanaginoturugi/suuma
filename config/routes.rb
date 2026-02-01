@@ -10,6 +10,8 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   resources :vouchers, only: %i[index new create edit update destroy]
+  get "vouchers/quick" => "vouchers#quick", as: :quick_vouchers
+  post "vouchers/quick" => "vouchers#create_quick"
   resources :bank_imports, only: %i[new create]
   resources :accounts, only: %i[index new create edit update destroy] do
     get :entries, on: :member

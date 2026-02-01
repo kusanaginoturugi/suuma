@@ -5,10 +5,14 @@ class VouchersController < ApplicationController
     @accounts = Account.order(:code)
     @accounts_map = @accounts.pluck(:code, :name).to_h
     @account_code = resolve_account_filter
+    @description_filter = resolve_description_filter
     @account_codes = expand_account_codes(@account_code)
     scope = Voucher.includes(:voucher_lines).order(recorded_on: :asc, created_at: :asc)
     if @account_codes.present?
       scope = scope.joins(:voucher_lines).where(voucher_lines: { account_code: @account_codes }).distinct
+    end
+    if @description_filter.present?
+      scope = scope.where("description LIKE ?", "%#{@description_filter}%")
     end
     @vouchers = scope
     line_scope = VoucherLine.where(voucher_id: @vouchers.select(:id))
@@ -117,6 +121,19 @@ class VouchersController < ApplicationController
     end
 
     session[:vouchers_account_code].presence
+  end
+
+  def resolve_description_filter
+    if params.key?(:description)
+      if params[:description].present?
+        session[:vouchers_description] = params[:description]
+      else
+        session.delete(:vouchers_description)
+      end
+      return params[:description].presence
+    end
+
+    session[:vouchers_description].presence
   end
 
   def expand_account_codes(code)

@@ -27,6 +27,8 @@
       <%= f.select :account_code,
         options_for_select([[t(".filter_all"), ""]] + @accounts.map { |a| ["#{a.code} #{a.name}", a.code] }, @account_code),
         {}, class: "form-select form-select-sm", onchange: "this.form.submit()" %>
+      <span class="text-muted"><%= t(".description_filter_label") %></span>
+      <%= f.text_field :description, value: @description_filter, class: "form-control form-control-sm", placeholder: t(".description_filter_placeholder") %>
       <noscript>
         <button type="submit" class="btn btn-outline-secondary btn-sm"><%= t(".filter_submit") %></button>
       </noscript>

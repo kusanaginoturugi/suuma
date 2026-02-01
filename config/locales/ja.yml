@@ -30,6 +30,8 @@ ja:
       filter_label: "科目で絞り込み"
       filter_all: "すべて"
       filter_submit: "適用"
+      description_filter_label: "摘要で絞り込み"
+      description_filter_placeholder: "例）家賃"
       new_button: "新規入力"
       edit: "編集"
       empty: "まだ振替伝票がありません。"

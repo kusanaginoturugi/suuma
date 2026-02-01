@@ -9,6 +9,7 @@ export default class extends Controller {
     this.recalculate()
     this.refreshAllAccountNames()
     this.accountEntries = Object.entries(this.accountsMapValue || {})
+    this.sortedEntries = this.accountEntries.slice().sort((a, b) => a[0].localeCompare(b[0], "ja", { numeric: true }))
   }
 
   addRow() {
@@ -104,24 +105,32 @@ export default class extends Controller {
     const datalist = document.getElementById(listId)
     if (!datalist) return
 
-    const keyword = input.value.trim()
-    const lower = keyword.toLowerCase()
-    let matches = this.accountEntries || []
+    if (!this.accountEntries || this.accountEntries.length === 0) {
+      return
+    }
+
+    const raw = input.value.trim()
+    const keyword = this.normalizeDigits(raw)
+    const lower = raw.toLowerCase()
+    let matches = this.sortedEntries || this.accountEntries || []
 
     if (keyword) {
-      matches = matches.filter(([code, name]) => {
-        return code.startsWith(keyword) || name.toLowerCase().includes(lower)
-      })
+      const numericMatches = matches.filter(([code]) => code.startsWith(keyword))
+      matches = numericMatches.length > 0
+        ? numericMatches
+        : matches.filter(([, name]) => String(name).toLowerCase().includes(lower))
     }
 
     const limited = matches.slice(0, 10)
     datalist.innerHTML = limited
       .map(([code, name]) => `<option value="${this.escapeHtml(code)}">${this.escapeHtml(code)} ${this.escapeHtml(name)}</option>`)
       .join("")
+
+    this.refreshList(input, listId)
   }
 
   escapeHtml(value) {
-    return value.replace(/[&<>\"]/g, (char) => {
+    return String(value).replace(/[&<>\"]/g, (char) => {
       switch (char) {
         case "&":
           return "&amp;"
@@ -135,5 +144,14 @@ export default class extends Controller {
           return char
       }
     })
+  }
+
+  normalizeDigits(value) {
+    return value.replace(/[０-９]/g, (char) => String.fromCharCode(char.charCodeAt(0) - 0xFEE0))
+  }
+
+  refreshList(input, listId) {
+    input.setAttribute("list", "")
+    input.setAttribute("list", listId)
   }
 }

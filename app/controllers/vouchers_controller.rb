@@ -34,6 +34,7 @@ class VouchersController < ApplicationController
     load_accounts
 
     if @voucher.save
+      ImportRule.record_from_voucher(@voucher)
       redirect_to vouchers_path, notice: t("vouchers.flash.saved")
     else
       @voucher.voucher_lines.build if @voucher.voucher_lines.empty?
@@ -49,6 +50,7 @@ class VouchersController < ApplicationController
   def update
     load_accounts
     if @voucher.update(voucher_params)
+      ImportRule.record_from_voucher(@voucher)
       redirect_to vouchers_path, notice: t("vouchers.flash.updated", default: "振替伝票を更新しました")
     else
       flash.now[:alert] = @voucher.errors.full_messages.join(" / ")

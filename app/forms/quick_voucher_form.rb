@@ -36,6 +36,7 @@ class QuickVoucherForm
     end
 
     voucher.save!
+    ImportRule.record_from_voucher(voucher)
     true
   rescue ActiveRecord::RecordInvalid => e
     errors.add(:base, e.record.errors.full_messages.join(" / "))

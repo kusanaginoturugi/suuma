@@ -36,14 +36,14 @@
           <% Account::CATEGORIES.each do |category| %>
             <% next if grouped[category].blank? %>
             <tr class="table-light">
-              <td colspan="6" class="fw-bold"><%= t("accounts.categories.#{category}") %></td>
+              <td colspan="8" class="fw-bold"><%= t("accounts.categories.#{category}") %></td>
             </tr>
-            <% grouped[category].each_slice(6) do |row| %>
+            <% grouped[category].each_slice(8) do |row| %>
               <tr>
                 <% row.each do |account| %>
                   <td class="text-nowrap"><%= "#{account.code} #{account.name}" %></td>
                 <% end %>
-                <% (6 - row.size).times do %>
+                <% (8 - row.size).times do %>
                   <td></td>
                 <% end %>
               </tr>

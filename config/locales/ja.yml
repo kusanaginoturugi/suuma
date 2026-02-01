@@ -3,9 +3,13 @@ ja:
     application:
       app_name: "Summa"
   nav:
+    options:
+      menu: "オプション"
     vouchers:
       index: "伝票一覧"
       new: "伝票入力"
+      quick: "簡易振替伝票入力"
+      menu: "伝票入力"
     bank_imports: "CSV取込"
     accounts: "勘定科目"
     theme:
@@ -103,6 +107,7 @@ ja:
           debit_accounts: "借方科目"
           credit_accounts: "貸方科目"
           amount: "金額"
+        edit: "編集"
 
   activemodel:
     attributes:

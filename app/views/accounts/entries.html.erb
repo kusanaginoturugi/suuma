@@ -60,7 +60,7 @@
                            placeholder="科目コード"
                            list="account-codes-entries"
                            data-account-lookup-target="code"
-                           data-action="input->account-lookup#update">
+                           data-action="input->account-lookup#update focus->account-lookup#suggest">
                     <span class="counterpart-name text-truncate" data-account-lookup-target="name"><%= default_name %></span>
                     <button type="submit" class="btn btn-sm btn-primary ms-auto flex-shrink-0">更新</button>
                   </div>

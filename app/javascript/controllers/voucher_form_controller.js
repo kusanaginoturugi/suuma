@@ -8,6 +8,7 @@ export default class extends Controller {
     this.nextIndex = parseInt(this.rowsTarget.dataset.nextIndex || this.rowsTarget.children.length, 10)
     this.recalculate()
     this.refreshAllAccountNames()
+    this.accountEntries = Object.entries(this.accountsMapValue || {})
   }
 
   addRow() {
@@ -59,6 +60,7 @@ export default class extends Controller {
     if (!span) return
     const name = this.lookupAccountName(input.value)
     span.textContent = name || ""
+    this.suggest(event)
   }
 
   refreshAllAccountNames() {
@@ -92,5 +94,46 @@ export default class extends Controller {
 
   formatAmount(value) {
     return value.toLocaleString("ja-JP", { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+  }
+
+  suggest(event) {
+    const input = event?.target
+    if (!input) return
+    const listId = input.getAttribute("list")
+    if (!listId) return
+    const datalist = document.getElementById(listId)
+    if (!datalist) return
+
+    const keyword = input.value.trim()
+    const lower = keyword.toLowerCase()
+    let matches = this.accountEntries || []
+
+    if (keyword) {
+      matches = matches.filter(([code, name]) => {
+        return code.startsWith(keyword) || name.toLowerCase().includes(lower)
+      })
+    }
+
+    const limited = matches.slice(0, 10)
+    datalist.innerHTML = limited
+      .map(([code, name]) => `<option value="${this.escapeHtml(code)}">${this.escapeHtml(code)} ${this.escapeHtml(name)}</option>`)
+      .join("")
+  }
+
+  escapeHtml(value) {
+    return value.replace(/[&<>\"]/g, (char) => {
+      switch (char) {
+        case "&":
+          return "&amp;"
+        case "<":
+          return "&lt;"
+        case ">":
+          return "&gt;"
+        case "\"":
+          return "&quot;"
+        default:
+          return char
+      }
+    })
   }
 }

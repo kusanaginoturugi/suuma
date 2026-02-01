@@ -16,11 +16,11 @@
 
   <div class="card shadow-sm">
     <div class="card-body">
-      <%= form_with model: @form, scope: :quick_voucher, url: quick_vouchers_path, local: true, data: { controller: "quick-voucher", quick_voucher_last_direction_value: @last_direction } do |f| %>
+      <%= form_with model: @form, scope: :quick_voucher, url: quick_vouchers_path, local: true, data: { controller: "quick-voucher" } do |f| %>
         <div class="row g-3 mb-3">
           <div class="col-md-3">
             <%= f.label :recorded_on, t("vouchers.quick.recorded_on"), class: "form-label" %>
-            <%= f.date_field :recorded_on, class: "form-control", required: true %>
+            <%= f.date_field :recorded_on, class: "form-control", required: true, data: { quick_voucher_target: "recordedOn" } %>
           </div>
         </div>
 
@@ -38,44 +38,7 @@
             <tbody>
               <tr>
                 <td>
-                  <%= f.text_field :description_deposit, class: "form-control", placeholder: t("vouchers.quick.description_placeholder"), data: { quick_voucher_target: "depositDescription" } %>
-                </td>
-                <td>
-                  <div class="input-group">
-                    <%= f.text_field :account_code_deposit,
-                      class: "form-control",
-                      placeholder: t("vouchers.quick.account_code_placeholder"),
-                      list: "quick-account-codes",
-                      data: { action: "input->account-lookup#update", account_lookup_target: "code" } %>
-                    <span class="input-group-text" data-account-lookup-target="name"></span>
-                  </div>
-                </td>
-                <td>
-                  <div class="input-group">
-                    <%= f.text_field :counter_account_code_deposit,
-                      class: "form-control",
-                      placeholder: t("vouchers.quick.counter_account_code_placeholder"),
-                      list: "quick-account-codes",
-                      data: { action: "input->account-lookup#update", account_lookup_target: "code" } %>
-                    <span class="input-group-text" data-account-lookup-target="name"></span>
-                  </div>
-                </td>
-                <td>
-                  <%= f.number_field :amount_deposit,
-                    class: "form-control text-end",
-                    min: 1,
-                    step: 1,
-                    data: { action: "keydown.enter->quick-voucher#submitDeposit", quick_voucher_target: "amountDeposit" } %>
-                </td>
-                <td>
-                  <button type="submit" name="quick_voucher[direction]" value="deposit" class="btn btn-success btn-sm w-100" data-quick-voucher-target="depositButton">
-                    <%= t("vouchers.quick.deposit_button") %>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <%= f.text_field :description_withdrawal, class: "form-control", placeholder: t("vouchers.quick.description_placeholder"), data: { quick_voucher_target: "withdrawalDescription" } %>
+                  <%= f.text_field :description_withdrawal, class: "form-control", placeholder: t("vouchers.quick.description_placeholder") %>
                 </td>
                 <td>
                   <div class="input-group">
@@ -83,7 +46,7 @@
                       class: "form-control",
                       placeholder: t("vouchers.quick.account_code_placeholder"),
                       list: "quick-account-codes",
-                      data: { action: "input->account-lookup#update", account_lookup_target: "code" } %>
+                      data: { action: "input->account-lookup#update focus->account-lookup#suggest", account_lookup_target: "code" } %>
                     <span class="input-group-text" data-account-lookup-target="name"></span>
                   </div>
                 </td>
@@ -93,7 +56,7 @@
                       class: "form-control",
                       placeholder: t("vouchers.quick.counter_account_code_placeholder"),
                       list: "quick-account-codes",
-                      data: { action: "input->account-lookup#update", account_lookup_target: "code" } %>
+                      data: { action: "input->account-lookup#update focus->account-lookup#suggest", account_lookup_target: "code" } %>
                     <span class="input-group-text" data-account-lookup-target="name"></span>
                   </div>
                 </td>
@@ -107,6 +70,43 @@
                 <td>
                   <button type="submit" name="quick_voucher[direction]" value="withdrawal" class="btn btn-primary btn-sm w-100" data-quick-voucher-target="withdrawalButton">
                     <%= t("vouchers.quick.withdrawal_button") %>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <%= f.text_field :description_deposit, class: "form-control", placeholder: t("vouchers.quick.description_placeholder") %>
+                </td>
+                <td>
+                  <div class="input-group">
+                    <%= f.text_field :account_code_deposit,
+                      class: "form-control",
+                      placeholder: t("vouchers.quick.account_code_placeholder"),
+                      list: "quick-account-codes",
+                      data: { action: "input->account-lookup#update focus->account-lookup#suggest", account_lookup_target: "code" } %>
+                    <span class="input-group-text" data-account-lookup-target="name"></span>
+                  </div>
+                </td>
+                <td>
+                  <div class="input-group">
+                    <%= f.text_field :counter_account_code_deposit,
+                      class: "form-control",
+                      placeholder: t("vouchers.quick.counter_account_code_placeholder"),
+                      list: "quick-account-codes",
+                      data: { action: "input->account-lookup#update focus->account-lookup#suggest", account_lookup_target: "code" } %>
+                    <span class="input-group-text" data-account-lookup-target="name"></span>
+                  </div>
+                </td>
+                <td>
+                  <%= f.number_field :amount_deposit,
+                    class: "form-control text-end",
+                    min: 1,
+                    step: 1,
+                    data: { action: "keydown.enter->quick-voucher#submitDeposit", quick_voucher_target: "amountDeposit" } %>
+                </td>
+                <td>
+                  <button type="submit" name="quick_voucher[direction]" value="deposit" class="btn btn-success btn-sm w-100" data-quick-voucher-target="depositButton">
+                    <%= t("vouchers.quick.deposit_button") %>
                   </button>
                 </td>
               </tr>
@@ -138,6 +138,7 @@
                 <th><%= t("vouchers.quick.history.th.debit_accounts") %></th>
                 <th><%= t("vouchers.quick.history.th.credit_accounts") %></th>
                 <th class="text-end"><%= t("vouchers.quick.history.th.amount") %></th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -153,6 +154,9 @@
                   <td><%= debit_names.presence&.join(" / ") || "—" %></td>
                   <td><%= credit_names.presence&.join(" / ") || "—" %></td>
                   <td class="text-end"><%= number_with_delimiter(amount.to_i) %></td>
+                  <td class="text-end">
+                    <%= link_to t("vouchers.quick.history.edit"), edit_voucher_path(voucher), class: "btn btn-outline-secondary btn-sm" %>
+                  </td>
                 </tr>
               <% end %>
             </tbody>

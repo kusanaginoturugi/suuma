@@ -6,17 +6,12 @@ export default class extends Controller {
     "amountWithdrawal",
     "depositButton",
     "withdrawalButton",
-    "depositDescription",
-    "withdrawalDescription",
+    "recordedOn",
   ]
 
-  static values = { lastDirection: String }
-
   connect() {
-    if (this.lastDirectionValue === "withdrawal") {
-      this.withdrawalDescriptionTarget?.focus()
-    } else if (this.lastDirectionValue === "deposit") {
-      this.depositDescriptionTarget?.focus()
+    if (this.hasRecordedOnTarget) {
+      this.recordedOnTarget.focus()
     }
   }
 

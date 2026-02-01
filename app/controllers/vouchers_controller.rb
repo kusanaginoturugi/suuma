@@ -59,7 +59,6 @@ class VouchersController < ApplicationController
     load_accounts
     prepare_quick_view
     defaults = quick_defaults
-    @last_direction = session[:quick_voucher_last_direction]
     @form = QuickVoucherForm.new(defaults.merge(recorded_on: defaults[:recorded_on] || Date.current))
   end
 
@@ -69,7 +68,6 @@ class VouchersController < ApplicationController
 
     if @form.save
       store_quick_defaults
-      session[:quick_voucher_last_direction] = quick_params[:direction]
       redirect_to quick_vouchers_path, notice: t("vouchers.flash.saved")
     else
       prepare_quick_view

@@ -23,7 +23,7 @@
     <%= form_with url: vouchers_path, method: :get, local: true, class: "d-flex align-items-center gap-2 flex-wrap" do |f| %>
       <span class="text-muted"><%= t(".filter_label") %></span>
       <%= f.select :account_code,
-        options_for_select([[t(".filter_all"), ""]] + @accounts.map { |a| ["#{a.code} #{a.name}", a.code] }, params[:account_code]),
+        options_for_select([[t(".filter_all"), ""]] + @accounts.map { |a| ["#{a.code} #{a.name}", a.code] }, @account_code),
         {}, class: "form-select form-select-sm", onchange: "this.form.submit()" %>
       <noscript>
         <button type="submit" class="btn btn-outline-secondary btn-sm"><%= t(".filter_submit") %></button>

@@ -4,14 +4,16 @@ class VouchersController < ApplicationController
   def index
     @accounts = Account.order(:code)
     @accounts_map = @accounts.pluck(:code, :name).to_h
+    @account_code = resolve_account_filter
+    @account_codes = expand_account_codes(@account_code)
     scope = Voucher.includes(:voucher_lines).order(recorded_on: :desc, created_at: :desc)
-    if params[:account_code].present?
-      scope = scope.joins(:voucher_lines).where(voucher_lines: { account_code: params[:account_code] }).distinct
+    if @account_codes.present?
+      scope = scope.joins(:voucher_lines).where(voucher_lines: { account_code: @account_codes }).distinct
     end
     @vouchers = scope
     line_scope = VoucherLine.where(voucher_id: @vouchers.select(:id))
-    if params[:account_code].present?
-      line_scope = line_scope.where(account_code: params[:account_code])
+    if @account_codes.present?
+      line_scope = line_scope.where(account_code: @account_codes)
     end
     @total_debit = line_scope.sum(:debit_amount)
     @total_credit = line_scope.sum(:credit_amount)
@@ -106,6 +108,32 @@ class VouchersController < ApplicationController
   def prepare_quick_view
     @accounts_map = @accounts.index_by(&:code).transform_values(&:name)
     @recent_vouchers = Voucher.includes(:voucher_lines).order(created_at: :desc).limit(20)
+  end
+
+  def resolve_account_filter
+    if params.key?(:account_code)
+      if params[:account_code].present?
+        session[:vouchers_account_code] = params[:account_code]
+      else
+        session.delete(:vouchers_account_code)
+      end
+      return params[:account_code].presence
+    end
+
+    session[:vouchers_account_code].presence
+  end
+
+  def expand_account_codes(code)
+    return nil if code.blank?
+    codes = [code]
+    queue = [code]
+    while queue.any?
+      current = queue.shift
+      children = Account.where(parent_code: current).pluck(:code)
+      queue.concat(children)
+      codes.concat(children)
+    end
+    codes.uniq
   end
 
   def store_quick_defaults

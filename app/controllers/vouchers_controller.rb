@@ -20,7 +20,7 @@ class VouchersController < ApplicationController
   end
 
   def new
-    @voucher = Voucher.new(recorded_on: Date.current, voucher_number: default_number)
+    @voucher = Voucher.new(recorded_on: Date.current)
     2.times { @voucher.voucher_lines.build }
     load_accounts
   end
@@ -87,10 +87,6 @@ class VouchersController < ApplicationController
   def voucher_params
     params.require(:voucher).permit(:recorded_on, :voucher_number, :description,
       voucher_lines_attributes: %i[id account_code account debit_amount credit_amount note _destroy])
-  end
-
-  def default_number
-    Date.current.strftime("%Y%m%d-001")
   end
 
   def load_accounts

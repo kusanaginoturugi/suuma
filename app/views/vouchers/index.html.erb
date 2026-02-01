@@ -7,6 +7,8 @@
     <p class="sub"><%= t(".sub") %></p>
     <div class="pill-row">
       <span class="pill"><%= t(".saved_count", count: @vouchers.size) %></span>
+      <span class="pill"><%= t(".total_debit", amount: number_with_delimiter(@total_debit.to_i)) %></span>
+      <span class="pill"><%= t(".total_credit", amount: number_with_delimiter(@total_credit.to_i)) %></span>
       <%= link_to t(".new_button"), new_voucher_path, class: "pill pill--accent" %>
       <%= link_to t("bank_imports.shared.import_button"), new_bank_import_path, class: "pill pill--ghost" %>
     </div>
@@ -44,13 +46,15 @@
               <th><%= t(".th.recorded_on") %></th>
               <th><%= t(".th.description") %></th>
               <th><%= t(".th.debit_accounts") %></th>
-              <th><%= t(".th.credit_accounts") %></th>
               <th class="text-end"><%= t(".th.debit") %></th>
+              <th><%= t(".th.credit_accounts") %></th>
               <th class="text-end"><%= t(".th.credit") %></th>
+              <th class="text-end"><%= t(".th.cumulative_total") %></th>
               <th></th>
             </tr>
           </thead>
           <tbody>
+            <% running_total = 0 %>
             <% @vouchers.each do |voucher| %>
               <% primary_code = voucher.voucher_lines.first&.account_code %>
               <% cat_class = "cat-#{Account.find_by(code: primary_code)&.category}" if primary_code.present? %>
@@ -64,25 +68,20 @@
                 <td><%= voucher.recorded_on&.strftime("%Y-%m-%d") %></td>
                 <td><%= voucher.description.presence || "—" %></td>
                 <td><%= debit_names.presence&.join(" / ") || "—" %></td>
-                <td><%= credit_names.presence&.join(" / ") || "—" %></td>
                 <td class="text-end"><%= number_with_delimiter(voucher.total_debit.to_i) %></td>
+                <td><%= credit_names.presence&.join(" / ") || "—" %></td>
                 <td class="text-end"><%= number_with_delimiter(voucher.total_credit.to_i) %></td>
+                <% running_total += (voucher.total_debit.to_d - voucher.total_credit.to_d) %>
+                <td class="text-end"><%= number_with_delimiter(running_total.to_i) %></td>
                 <td class="text-end">
                   <%= link_to t("vouchers.index.edit"), edit_voucher_path(voucher), class: "btn btn-outline-secondary btn-sm" %>
                 </td>
               </tr>
             <% end %>
           </tbody>
-          <tfoot class="table-light">
-            <tr>
-              <th colspan="4" class="text-end">合計</th>
-              <th class="text-end"><%= t(".total_debit", amount: number_with_delimiter(@total_debit.to_i)) %></th>
-              <th class="text-end"><%= t(".total_credit", amount: number_with_delimiter(@total_credit.to_i)) %></th>
-              <th></th>
-            </tr>
-          </tfoot>
         </table>
       </div>
     </section>
+
   <% end %>
 </div>

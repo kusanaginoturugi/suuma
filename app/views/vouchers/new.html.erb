@@ -20,4 +20,37 @@
   <% end %>
 
   <%= render "form", voucher: @voucher, accounts: @accounts, submit_label: t("vouchers.new.submit") %>
+
+  <section class="card card--stacked" style="margin-top: 16px;">
+    <div class="card__header">
+      <div>
+        <p class="eyebrow">ACCOUNTS</p>
+        <h2><%= t("accounts.index.heading") %></h2>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-sm table-striped align-middle mb-0" style="font-size: 0.82rem;">
+        <tbody>
+          <% grouped = (@accounts || []).group_by(&:category) %>
+          <% Account::CATEGORIES.each do |category| %>
+            <% next if grouped[category].blank? %>
+            <tr class="table-light">
+              <td colspan="6" class="fw-bold"><%= t("accounts.categories.#{category}") %></td>
+            </tr>
+            <% grouped[category].each_slice(6) do |row| %>
+              <tr>
+                <% row.each do |account| %>
+                  <td class="text-nowrap"><%= "#{account.code} #{account.name}" %></td>
+                <% end %>
+                <% (6 - row.size).times do %>
+                  <td></td>
+                <% end %>
+              </tr>
+            <% end %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
 </div>

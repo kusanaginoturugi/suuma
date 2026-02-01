@@ -40,6 +40,7 @@ ja:
         credit_accounts: "貸方科目"
         debit: "借方合計"
         credit: "貸方合計"
+        cumulative_total: "累計合計金額"
     new:
       title: "振替伝票入力 | Summa"
       heading: "振替伝票入力"
@@ -123,6 +124,11 @@ ja:
       blank: "を入力してください"
   activerecord:
     errors:
+      models:
+        voucher:
+          attributes:
+            voucher_number:
+              taken: "は既に使用されています"
       messages:
         record_invalid: "検証に失敗しました: %{errors}"
   bank_imports:
@@ -202,6 +208,7 @@ ja:
         name: "名称"
         category: "区分"
         parent: "親科目"
+        details: "詳細"
         actions: "操作"
     entries:
       title: "%{name}（%{code}）の明細 | Summa"

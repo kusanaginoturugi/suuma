@@ -32,8 +32,12 @@
         padding: 10px 14px;
         background: #f8f9fa;
         border-bottom: 1px solid #dee2e6;
+        flex-wrap: nowrap;
       }
-      .navbar-brand { font-weight: 700; text-decoration: none; color: #0d6efd; }
+      .navbar .container-fluid { display: flex; align-items: center; gap: 14px; flex-wrap: nowrap; }
+      .navbar-collapse { display: flex !important; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+      .navbar-toggler { display: none; }
+      .navbar-brand { font-weight: 700; text-decoration: none; color: #0d6efd; white-space: nowrap; }
       .navbar-nav {
         display: flex;
         flex-direction: row;

@@ -1,6 +1,6 @@
 class AccountsController < ApplicationController
   before_action :load_accounts, only: %i[index new edit]
-  before_action :set_account, only: %i[edit update]
+  before_action :set_account, only: %i[edit update destroy]
 
   def index
   end
@@ -29,7 +29,17 @@ class AccountsController < ApplicationController
     else
       load_accounts
       flash.now[:alert] = @account.errors.full_messages.join(" / ")
-      render :edit, status: :unprocessable_entity
+      render :index, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    if @account.destroy
+      redirect_to accounts_path, notice: t("accounts.flash.deleted")
+    else
+      load_accounts
+      flash.now[:alert] = @account.errors.full_messages.join(" / ")
+      render :index, status: :unprocessable_entity
     end
   end
 
@@ -37,9 +47,11 @@ class AccountsController < ApplicationController
     @account = Account.find(params[:id])
     codes = [@account.code] + descendant_codes(@account)
     @included_codes = codes
-    @lines = VoucherLine.includes(:voucher)
+    @lines = VoucherLine.includes(:voucher, :account_master)
                         .where(account_code: codes)
                         .order("vouchers.recorded_on ASC, vouchers.id ASC, voucher_lines.id ASC")
+    @accounts_map = Account.pluck(:code, :name).to_h
+    @account_categories = Account.pluck(:code, :category).to_h
   end
 
   private

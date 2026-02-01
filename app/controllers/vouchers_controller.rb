@@ -2,7 +2,19 @@ class VouchersController < ApplicationController
   before_action :set_voucher, only: %i[edit update destroy]
 
   def index
-    @vouchers = Voucher.includes(:voucher_lines).order(recorded_on: :desc, created_at: :desc)
+    @accounts = Account.order(:code)
+    @accounts_map = @accounts.pluck(:code, :name).to_h
+    scope = Voucher.includes(:voucher_lines).order(recorded_on: :desc, created_at: :desc)
+    if params[:account_code].present?
+      scope = scope.joins(:voucher_lines).where(voucher_lines: { account_code: params[:account_code] }).distinct
+    end
+    @vouchers = scope
+    line_scope = VoucherLine.where(voucher_id: @vouchers.select(:id))
+    if params[:account_code].present?
+      line_scope = line_scope.where(account_code: params[:account_code])
+    end
+    @total_debit = line_scope.sum(:debit_amount)
+    @total_credit = line_scope.sum(:credit_amount)
   end
 
   def new

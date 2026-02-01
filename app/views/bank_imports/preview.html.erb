@@ -18,16 +18,16 @@
     <div class="entry-head">
       <span><%= t(".th.date") %></span>
       <span><%= t(".th.description") %></span>
-      <span><%= t(".th.deposit") %></span>
-      <span><%= t(".th.withdrawal") %></span>
+      <span class="text-end"><%= t(".th.deposit") %></span>
+      <span class="text-end"><%= t(".th.withdrawal") %></span>
     </div>
     <div class="entry-list">
       <% @form.parsed_rows.each do |row| %>
         <div class="entry-row entry-row--list" style="grid-template-columns: 1fr 2fr 1fr 1fr;">
           <span><%= row[:date] %></span>
           <span><%= row[:description] %></span>
-          <span class="text-right"><%= number_with_delimiter(row[:deposit]) %></span>
-          <span class="text-right"><%= number_with_delimiter(row[:withdrawal]) %></span>
+          <span class="text-end"><%= number_with_delimiter(row[:deposit].to_i) %></span>
+          <span class="text-end"><%= number_with_delimiter(row[:withdrawal].to_i) %></span>
         </div>
       <% end %>
     </div>

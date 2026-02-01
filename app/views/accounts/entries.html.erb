@@ -1,52 +1,83 @@
 <% content_for :title, t("accounts.entries.title", name: @account.name, code: @account.code) %>
 
-<div class="page-shell">
-  <div class="hero">
-    <p class="eyebrow">ACCOUNTS</p>
-    <h1><%= t("accounts.entries.heading", name: @account.name, code: @account.code) %></h1>
-    <p class="sub"><%= t("accounts.entries.sub") %></p>
-    <div class="pill-row">
-      <%= link_to t("accounts.entries.back"), accounts_path, class: "pill" %>
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+      <p class="text-uppercase text-muted mb-1 small">ACCOUNTS</p>
+      <h1 class="h3 mb-1"><%= t("accounts.entries.heading", name: @account.name, code: @account.code) %></h1>
+      <p class="text-muted mb-2"><%= t("accounts.entries.sub") %></p>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-secondary-subtle text-secondary">
+          <%= t("accounts.entries.including", default: "含まれる科目:") %> <%= @included_codes.join(", ") %>
+        </span>
+      </div>
+    </div>
+    <div>
+      <%= link_to t("accounts.entries.back"), accounts_path, class: "btn btn-outline-secondary" %>
     </div>
   </div>
 
   <% if flash[:notice] %>
-    <div class="flash flash--notice"><%= flash[:notice] %></div>
+    <div class="alert alert-success"><%= flash[:notice] %></div>
   <% end %>
   <% if flash[:alert] %>
-    <div class="flash flash--alert"><%= flash[:alert] %></div>
+    <div class="alert alert-danger"><%= flash[:alert] %></div>
   <% end %>
 
-  <section class="card card--stacked">
-    <p class="sub">
-      <%= t("accounts.entries.including", default: "含まれる科目:") %>
-      <%= @included_codes.join(", ") %>
-    </p>
-    <div class="entry-head entry-grid-account-entries">
-      <span><%= t("accounts.entries.th.date") %></span>
-      <span><%= t("accounts.entries.th.description") %></span>
-      <span><%= t("accounts.entries.th.counterpart") %></span>
-      <span><%= t("accounts.entries.th.deposit") %></span>
-      <span><%= t("accounts.entries.th.withdrawal") %></span>
-      <span><%= t("accounts.entries.th.balance") %></span>
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <table class="table table-striped table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col" style="width: 12%;"><%= t("accounts.entries.th.date") %></th>
+            <th scope="col" style="width: 33%;"><%= t("accounts.entries.th.description") %></th>
+            <th scope="col" style="width: 15%;"><%= t("accounts.entries.th.counterpart") %></th>
+            <th scope="col" class="text-end" style="width: 10%;"><%= t("accounts.entries.th.deposit") %></th>
+            <th scope="col" class="text-end" style="width: 10%;"><%= t("accounts.entries.th.withdrawal") %></th>
+            <th scope="col" class="text-end" style="width: 10%;"><%= t("accounts.entries.th.balance") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% balance = 0.to_d %>
+          <% @lines.each do |line| %>
+            <% deposit = line.debit_amount.to_d %>
+            <% withdrawal = line.credit_amount.to_d %>
+            <% balance += deposit - withdrawal %>
+            <% other_lines = line.voucher.voucher_lines.reject { |l| l.id == line.id } %>
+            <% default_counter = other_lines.first&.account_code %>
+            <% default_name = @accounts_map[default_counter] %>
+            <% counter_category = @account_categories[default_counter] || @account_categories[line.account_code] %>
+            <tr class="align-middle" data-category="<%= @account_categories[line.account_code] %>" data-counter-category="<%= counter_category %>">
+              <td><%= line.voucher.recorded_on&.strftime("%Y-%m-%d") %></td>
+              <td><%= line.voucher.description.presence || "—" %></td>
+              <td style="white-space: nowrap;" data-counter-category="<%= counter_category %>">
+                <%= form_with url: update_counterpart_voucher_line_path(line), method: :patch,
+                  class: "w-100",
+                  data: { turbo: false, controller: "account-lookup", account_lookup_accounts_map_value: @accounts_map.to_json } do %>
+                  <div class="counterpart-group">
+                    <input type="text" name="counter_account_code" value="<%= default_counter %>"
+                           class="form-control form-control-sm text-end counterpart-code"
+                           placeholder="科目コード"
+                           list="account-codes-entries"
+                           data-account-lookup-target="code"
+                           data-action="input->account-lookup#update">
+                    <span class="counterpart-name text-truncate" data-account-lookup-target="name"><%= default_name %></span>
+                    <button type="submit" class="btn btn-sm btn-primary ms-auto flex-shrink-0">更新</button>
+                  </div>
+                <% end %>
+              </td>
+              <td class="text-end"><%= number_with_delimiter(deposit.to_i) %></td>
+              <td class="text-end"><%= number_with_delimiter(withdrawal.to_i) %></td>
+              <td class="text-end fw-semibold"><%= number_with_delimiter(balance.to_i) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <datalist id="account-codes-entries">
+        <% @accounts_map.each do |code, name| %>
+          <option value="<%= code %>"><%= "#{code} #{name}" %></option>
+        <% end %>
+      </datalist>
     </div>
-
-    <div class="entry-list">
-      <% balance = 0.to_d %>
-      <% @lines.each do |line| %>
-        <% deposit = line.debit_amount.to_d %>
-        <% withdrawal = line.credit_amount.to_d %>
-        <% balance += deposit - withdrawal %>
-        <% counterparts = line.voucher.voucher_lines.reject { |l| l.id == line.id }.map { |l| "#{l.account_code} #{l.account.presence || ''}".strip }.join(" / ") %>
-        <div class="entry-row entry-row--list entry-grid-account-entries cat-<%= @account.category %>">
-          <span><%= line.voucher.recorded_on&.strftime("%Y-%m-%d") %></span>
-          <span><%= line.voucher.description.presence || "—" %></span>
-          <span><%= counterparts.presence || "—" %></span>
-          <span class="text-right"><%= number_with_delimiter(deposit) %></span>
-          <span class="text-right"><%= number_with_delimiter(withdrawal) %></span>
-          <span class="text-right"><%= number_with_delimiter(balance) %></span>
-        </div>
-      <% end %>
-    </div>
-  </section>
+  </div>
 </div>

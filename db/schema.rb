@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_08_024500) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_09_030000) do
   create_table "accounts", force: :cascade do |t|
     t.string "category", null: false
     t.string "code", null: false
@@ -36,6 +36,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_08_024500) do
     t.string "withdrawal_column", null: false
     t.string "withdrawal_counter_code", null: false
     t.index ["name"], name: "index_bank_import_settings_on_name", unique: true
+  end
+
+  create_table "import_rules", force: :cascade do |t|
+    t.string "account_code", null: false
+    t.datetime "created_at", null: false
+    t.string "direction", default: "both", null: false
+    t.string "keyword", null: false
+    t.string "match_type", default: "contains", null: false
+    t.integer "priority", default: 100, null: false
+    t.datetime "updated_at", null: false
+    t.index ["keyword", "direction"], name: "index_import_rules_on_keyword_and_direction"
+    t.index ["priority"], name: "index_import_rules_on_priority"
   end
 
   create_table "voucher_lines", force: :cascade do |t|

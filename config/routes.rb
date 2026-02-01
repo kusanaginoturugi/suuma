@@ -11,8 +11,11 @@ Rails.application.routes.draw do
 
   resources :vouchers, only: %i[index new create edit update destroy]
   resources :bank_imports, only: %i[new create]
-  resources :accounts, only: %i[index new create edit update] do
+  resources :accounts, only: %i[index new create edit update destroy] do
     get :entries, on: :member
+  end
+  resources :voucher_lines, only: [] do
+    patch :update_counterpart, on: :member
   end
 
   # Defines the root path route ("/")

@@ -91,6 +91,6 @@ export default class extends Controller {
   }
 
   formatAmount(value) {
-    return value.toLocaleString("ja-JP", { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+    return value.toLocaleString("ja-JP", { minimumFractionDigits: 0, maximumFractionDigits: 0 })
   }
 }

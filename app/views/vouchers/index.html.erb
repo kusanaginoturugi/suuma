@@ -19,36 +19,70 @@
     <div class="flash flash--alert"><%= flash[:alert] %></div>
   <% end %>
 
+  <div class="mb-3">
+    <%= form_with url: vouchers_path, method: :get, local: true, class: "d-flex align-items-center gap-2 flex-wrap" do |f| %>
+      <span class="text-muted"><%= t(".filter_label") %></span>
+      <%= f.select :account_code,
+        options_for_select([[t(".filter_all"), ""]] + @accounts.map { |a| ["#{a.code} #{a.name}", a.code] }, params[:account_code]),
+        {}, class: "form-select form-select-sm", onchange: "this.form.submit()" %>
+      <noscript>
+        <button type="submit" class="btn btn-outline-secondary btn-sm"><%= t(".filter_submit") %></button>
+      </noscript>
+    <% end %>
+  </div>
+
   <% if @vouchers.empty? %>
     <section class="card">
       <p class="sub"><%= t(".empty") %> <%= link_to t(".new_button"), new_voucher_path %></p>
     </section>
   <% else %>
     <section class="card card--stacked">
-    <div class="entry-head entry-grid-vouchers">
-      <span><%= t(".th.recorded_on") %></span>
-      <span><%= t(".th.voucher_number") %></span>
-      <span><%= t(".th.description") %></span>
-      <span><%= t(".th.debit") %></span>
-      <span><%= t(".th.credit") %></span>
-      <span></span>
+      <div class="table-responsive">
+        <table class="table table-striped align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th><%= t(".th.recorded_on") %></th>
+              <th><%= t(".th.description") %></th>
+              <th><%= t(".th.debit_accounts") %></th>
+              <th><%= t(".th.credit_accounts") %></th>
+              <th class="text-end"><%= t(".th.debit") %></th>
+              <th class="text-end"><%= t(".th.credit") %></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @vouchers.each do |voucher| %>
+              <% primary_code = voucher.voucher_lines.first&.account_code %>
+              <% cat_class = "cat-#{Account.find_by(code: primary_code)&.category}" if primary_code.present? %>
+              <% debit_names = voucher.voucher_lines.select { |line| line.debit_amount.to_d.positive? }
+                                   .map { |line| @accounts_map[line.account_code] || line.account.presence || line.account_code }
+                                   .uniq %>
+              <% credit_names = voucher.voucher_lines.select { |line| line.credit_amount.to_d.positive? }
+                                    .map { |line| @accounts_map[line.account_code] || line.account.presence || line.account_code }
+                                    .uniq %>
+              <tr class="<%= cat_class %>">
+                <td><%= voucher.recorded_on&.strftime("%Y-%m-%d") %></td>
+                <td><%= voucher.description.presence || "—" %></td>
+                <td><%= debit_names.presence&.join(" / ") || "—" %></td>
+                <td><%= credit_names.presence&.join(" / ") || "—" %></td>
+                <td class="text-end"><%= number_with_delimiter(voucher.total_debit.to_i) %></td>
+                <td class="text-end"><%= number_with_delimiter(voucher.total_credit.to_i) %></td>
+                <td class="text-end">
+                  <%= link_to t("vouchers.index.edit"), edit_voucher_path(voucher), class: "btn btn-outline-secondary btn-sm" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <th colspan="4" class="text-end">合計</th>
+              <th class="text-end"><%= t(".total_debit", amount: number_with_delimiter(@total_debit.to_i)) %></th>
+              <th class="text-end"><%= t(".total_credit", amount: number_with_delimiter(@total_credit.to_i)) %></th>
+              <th></th>
+            </tr>
+          </tfoot>
+        </table>
       </div>
-      <div class="entry-list">
-        <% @vouchers.each do |voucher| %>
-        <% primary_code = voucher.voucher_lines.first&.account_code %>
-        <% cat_class = "cat-#{Account.find_by(code: primary_code)&.category}" if primary_code.present? %>
-        <div class="entry-row entry-row--list entry-grid-vouchers <%= cat_class %>">
-          <span><%= voucher.recorded_on&.strftime("%Y-%m-%d") %></span>
-          <span><%= voucher.voucher_number %></span>
-          <span><%= voucher.description.presence || "—" %></span>
-          <span class="text-right"><%= number_with_delimiter(voucher.total_debit) %></span>
-          <span class="text-right"><%= number_with_delimiter(voucher.total_credit) %></span>
-          <span class="text-right">
-            <%= link_to t("vouchers.index.edit"), edit_voucher_path(voucher), class: "btn btn--ghost", style: "padding:6px 10px;" %>
-          </span>
-        </div>
-      <% end %>
-    </div>
-  </section>
-<% end %>
+    </section>
+  <% end %>
 </div>

@@ -515,6 +515,35 @@ input:focus {
   padding-left: 14px;
   padding-right: 14px;
 }
+
+.voucher-filter-wrap {
+  overflow-x: auto;
+}
+
+.voucher-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.voucher-filter-row .voucher-filter-label {
+  white-space: nowrap;
+}
+
+.voucher-filter-row .voucher-filter-control {
+  width: auto;
+  min-width: 0;
+}
+
+.voucher-filter-row select.voucher-filter-control {
+  min-width: 200px;
+}
+
+.voucher-filter-row input.voucher-filter-control {
+  min-width: 220px;
+}
 /* Minimal styles to make the navbar horizontal and tidy */
 
 body {

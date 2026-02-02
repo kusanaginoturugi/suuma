@@ -21,14 +21,17 @@
     <div class="flash flash--alert"><%= flash[:alert] %></div>
   <% end %>
 
-  <div class="mb-3">
-    <%= form_with url: vouchers_path, method: :get, local: true, class: "d-flex align-items-center gap-2 flex-wrap" do |f| %>
-      <span class="text-muted"><%= t(".filter_label") %></span>
+  <div class="mb-3 voucher-filter-wrap">
+    <%= form_with url: vouchers_path, method: :get, local: true, class: "voucher-filter-row" do |f| %>
+      <span class="text-muted voucher-filter-label"><%= t(".filter_label") %></span>
       <%= f.select :account_code,
         options_for_select([[t(".filter_all"), ""]] + @accounts.map { |a| ["#{a.code} #{a.name}", a.code] }, @account_code),
-        {}, class: "form-select form-select-sm", onchange: "this.form.submit()" %>
-      <span class="text-muted"><%= t(".description_filter_label") %></span>
-      <%= f.text_field :description, value: @description_filter, class: "form-control form-control-sm", placeholder: t(".description_filter_placeholder") %>
+        {}, class: "form-select form-select-sm voucher-filter-control", onchange: "this.form.submit()" %>
+      <span class="text-muted voucher-filter-label"><%= t(".description_filter_label") %></span>
+      <%= f.text_field :description, value: @description_filter, class: "form-control form-control-sm voucher-filter-control", placeholder: t(".description_filter_placeholder") %>
+      <button type="button" class="btn btn-outline-secondary btn-sm" onclick="this.form.description.value=''; this.form.submit();">
+        <%= t(".description_filter_clear") %>
+      </button>
       <noscript>
         <button type="submit" class="btn btn-outline-secondary btn-sm"><%= t(".filter_submit") %></button>
       </noscript>
